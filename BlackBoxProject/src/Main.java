@@ -1,0 +1,31 @@
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        // Create a label with the text "Hello, World!"
+        Label label = new Label("Hello, World!");
+
+        // Create a layout pane and add the label to it
+        StackPane root = new StackPane();
+        root.getChildren().add(label);
+
+        // Create a scene with the layout pane as root
+        Scene scene = new Scene(root, 300, 200);
+
+        // Set the scene to the stage and show the stage
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Hello World Application");
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        // Launch the JavaFX application
+        launch(args);
+    }
+}
