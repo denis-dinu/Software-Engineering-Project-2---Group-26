@@ -65,7 +65,7 @@ public class Main extends Application {
 
     private Scene createGameScene(Stage primaryStage) {
         Board board = new Board();
-        board.generateRandomAtoms(6);
+        board.generateAtoms(6);
 
         // Create the game board UI
         HexagonalBoardUI boardUI = new HexagonalBoardUI(board);

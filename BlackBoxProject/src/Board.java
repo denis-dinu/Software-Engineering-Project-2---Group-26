@@ -4,7 +4,7 @@ public class Board {
 
     // a 2D array that stores the cells of the board (padded with null references where the row is not full of cells)
     private final Cell[][] cells;
-    private final int BOARD_SIZE = 9;
+     final int BOARD_SIZE = 9;
     public int cellsNumber = 0;
     private final double ROW_HEIGHT = 50.0;
 
@@ -53,14 +53,34 @@ public class Board {
         return cells;
     }
 
-    public void generateRandomAtoms(int maxAtoms) {
-        int count = 0;
-        for (Cell[] row : cells) for (Cell cell : row) count++;
 
-        cellsNumber = count;
-        System.out.println(cellsNumber);
+    // Ive asked Vida to quickly rewrite a generate Atoms method without git branch hussle
+    public void generateAtoms(int maxAtoms) {
 
+        Random random = new Random();
+        int atomsSet = 0; // Counter for the number of atoms set
+
+        // Calculate the center row index
+        int centerRow = BOARD_SIZE / 2;
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            // Calculate the probability of placing an atom based on the distance from the center row
+            double distanceFromCenter = Math.abs(i - centerRow);
+            double probability = 0.3 * (1.0 - (distanceFromCenter / centerRow));
+
+            for (int j = 0; j < cells[i].length; j++) {
+                if (cells[i][j] == null) cells[i][j] = new Cell();
+                if (atomsSet >= maxAtoms) return; // Exit the method if the limit is reached
+
+                // Set atom with the calculated probability
+                if (random.nextDouble() < probability) {
+                    cells[i][j].setAtom();
+                    atomsSet++; // Increment the counter for the number of atoms set
+                }
+            }
+        }
     }
+
 
 
 }
