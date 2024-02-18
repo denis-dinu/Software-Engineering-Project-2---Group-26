@@ -1,6 +1,7 @@
 public class Cell {
 
     private boolean atom;
+    private double yPosition;
 
     /*
         An array that stores references to the cells which are neighbours of this cell (according to the
@@ -23,7 +24,7 @@ public class Cell {
 
     public void setNeighbour(int position, Cell newNeighbour) {
 
-        if(position<0 || position>5) {
+        if(position < 0 || position > 5) {
             throw new IllegalArgumentException("Invalid neighbour position");
         }
 
@@ -43,5 +44,14 @@ public class Cell {
     public Cell[] getNeighbours() {
         return neighbours;
     }
+
+    public double getY() {
+        return yPosition;
+    }
+
+    public void setY(double yPosition) {
+        this.yPosition = yPosition;
+    }
+
 
 }

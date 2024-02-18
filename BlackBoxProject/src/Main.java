@@ -1,15 +1,9 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -34,28 +28,15 @@ public class Main extends Application {
         Background background = new Background(backgroundFill);
 
         // Set event handlers for the buttons
-        playButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                // Code to start the game goes here
-                primaryStage.setScene(createGameScene(primaryStage)); // Pass primaryStage to createGameScene
-            }
-        });
-
-        exitButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                // Close the application when "Exit" button is clicked
-                primaryStage.close();
-            }
-        });
+        playButton.setOnAction(event -> primaryStage.setScene(createGameScene(primaryStage)));
+        exitButton.setOnAction(event -> primaryStage.close());
 
         // Create a layout pane for the buttons
         StackPane root = new StackPane();
         root.setBackground(background); // Set the background color
         root.setAlignment(Pos.CENTER); // Center align the buttons
         root.setPadding(new Insets(20)); // Add padding to the layout pane
-        root.setPrefSize(1000, 700); // Set the preferred size of the scene
+        root.setPrefSize(1300, 800); // Set the preferred size of the scene
 
         // Set the buttons to fill the available width
         playButton.setMaxWidth(Double.MAX_VALUE);
@@ -78,39 +59,59 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    // Method to create the game screen scene
+
+
+
+
     private Scene createGameScene(Stage primaryStage) {
-        // This is a placeholder method to create a simple game screen
-        // You should replace this with your actual game screen creation logic
-        StackPane gamePane = new StackPane();
-        gamePane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        gamePane.setPrefSize(1000, 700);
+        Board board = new Board();
+        board.generateRandomAtoms(6);
+
+        // Create the game board UI
+        HexagonalBoardUI boardUI = new HexagonalBoardUI(board);
+
         Button backButton = new Button("Back to Menu");
         backButton.setOnAction(event -> primaryStage.setScene(createMainMenuScene(primaryStage))); // Pass primaryStage to createMainMenuScene
-        gamePane.getChildren().add(backButton);
-        return new Scene(gamePane);
+
+        // Create an HBox to center the board horizontally and add padding to the left
+        HBox boardContainer = new HBox();
+        boardContainer.setAlignment(Pos.CENTER);
+        boardContainer.setPadding(new Insets(0, 0, 0, 1300/2)); // Add padding to the left side
+        boardContainer.getChildren().add(boardUI);
+
+        // Create a layout pane for the game components
+        VBox gamePane = new VBox(10);
+        gamePane.setAlignment(Pos.CENTER);
+        gamePane.getChildren().addAll(boardContainer, backButton);
+
+        // Create a layout pane to center the game components horizontally
+        StackPane root = new StackPane();
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
+        root.getChildren().add(gamePane);
+
+        return new Scene(root, 1300, 800);
     }
+
 
     // Method to create the main menu scene
     private Scene createMainMenuScene(Stage primaryStage) {
         // This method creates the main menu scene as before
         Button playButton = new Button("Play");
         Button exitButton = new Button("Exit");
-        // Set the font for the buttons and other styling as needed
 
         playButton.setOnAction(event -> primaryStage.setScene(createGameScene(primaryStage))); // Pass primaryStage to createGameScene
         exitButton.setOnAction(event -> primaryStage.close());
 
         StackPane root = new StackPane();
-        // Set the layout, background color, etc.
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
 
         VBox buttonBox = new VBox(20);
-        // Set up the layout for the buttons
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(playButton, exitButton);
 
         root.getChildren().add(buttonBox);
 
-        Scene scene = new Scene(root);
-        // Set the scene to the stage and show the stage
+        Scene scene = new Scene(root, 1000, 700);
 
         return scene;
     }
