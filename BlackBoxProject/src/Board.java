@@ -123,8 +123,6 @@ public class Board {
             }
 
 
-            //here we need a loop that goes through the rows
-
 
     public Cell[][] getCells() {
         return cells;
