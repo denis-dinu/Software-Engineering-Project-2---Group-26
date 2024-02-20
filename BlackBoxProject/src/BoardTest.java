@@ -1,7 +1,8 @@
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BoardTest {
 
@@ -10,14 +11,12 @@ public class BoardTest {
         Board board = new Board();
 
         //testing row index 0
-        assertNull(board.getCells()[0][6]);
         assertNull(board.getCells()[0][1].getNeighbours()[1]); //checking the upper-right neighbour
         assertNull(board.getCells()[0][2].getNeighbours()[0]); //checking the upper-left neighbour
         assertEquals(board.getCells()[0][3], board.getCells()[0][2].getNeighbours()[2]); //checking the right neighbour
         assertEquals(board.getCells()[1][4], board.getCells()[0][4].getNeighbours()[4]); //checking the lower-left neighbour
 
         //testing row index 2
-        assertNull(board.getCells()[2][7]);
         assertEquals(board.getCells()[1][1], board.getCells()[2][1].getNeighbours()[1]); //checking the upper-right neighbour
         assertEquals(board.getCells()[2][4], board.getCells()[2][3].getNeighbours()[2]); //checking the right neighbour
         assertNull(board.getCells()[2][0].getNeighbours()[5]); //checking the left neighbour
@@ -25,7 +24,6 @@ public class BoardTest {
         assertEquals(board.getCells()[3][6], board.getCells()[2][6].getNeighbours()[4]); //checking the lower-left neighbour
 
         //testing row index 5
-        assertNull(board.getCells()[5][8]);
         assertNull(board.getCells()[5][7].getNeighbours()[2]); //checking the right neighbour
         assertEquals(board.getCells()[4][4], board.getCells()[5][3].getNeighbours()[1]); //checking the upper-right neighbour
         assertEquals(board.getCells()[4][8], board.getCells()[5][7].getNeighbours()[1]); //checking the upper-right neighbour
@@ -34,13 +32,34 @@ public class BoardTest {
         assertEquals(board.getCells()[6][2], board.getCells()[5][2].getNeighbours()[3]); //checking the lower-right neighbour
 
         //testing row index 8
-        assertNull(board.getCells()[8][5]);
-        assertNull(board.getCells()[8][7]);
         assertNull(board.getCells()[8][1].getNeighbours()[3]); //checking the lower-right neighbour
         assertNull(board.getCells()[8][4].getNeighbours()[4]); //checking the lower-left neighbour
         assertNull(board.getCells()[8][4].getNeighbours()[2]); //checking the right neighbour
         assertEquals(board.getCells()[8][2], board.getCells()[8][3].getNeighbours()[5]); //checking the left neighbour
         assertEquals(board.getCells()[7][2], board.getCells()[8][1].getNeighbours()[1]); //checking the upper-right neighbour
+    }
+
+    @Test
+    public void testNeighbours() {
+        Board board = new Board();
+
+        // Get the cells array
+        Cell[][] cells = board.getCells();
+
+        // Test neighbors for each cell
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[i].length; j++) {
+                Cell cell = cells[i][j];
+
+                if (j > 0) assertNotNull(cell.getNeighbours()[5]); // Left neighbor should not be null
+
+                if (i > 0 && (j > 0 || i > board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[0]); // Upper-left neighbor should not be null
+                if (i > 0 && (j < cells[i].length-1 || i > board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[1]); // Upper-right neighbor should not be null
+                if (i < board.BOARD_SIZE-1 && (j < cells[i].length-1 || i < board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[3]); // Lower-right neighbor should not be null
+                if (i < board.BOARD_SIZE-1 && (j > 0 || i < board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[4]); // Lower-left neighbor should not be null
+
+            }
+        }
     }
 
 }
