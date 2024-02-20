@@ -86,30 +86,45 @@ public class Board {
     }
 
     public void generateAtoms(int maxAtoms) {
+        //generate 6 random atom numbers
 
-        Random random = new Random();
-        int atomsSet = 0; // Counter for the number of atoms set
 
-        // Calculate the center row index
-        int centerRow = BOARD_SIZE / 2;
+            Random random = new Random();
+            Board board = this;
 
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            // Calculate the probability of placing an atom based on the distance from the center row
-            double distanceFromCenter = Math.abs(i - centerRow);
-            double probability = 0.3 * (1.0 - (distanceFromCenter / centerRow));
 
-            for (int j = 0; j < cells[i].length; j++) {
-                if (cells[i][j] == null) ;
-                if (atomsSet >= maxAtoms) return; // Exit the method if the limit is reached
+                int atomsPlaced = 0; // Counter to keep track of atoms placed
+                while (atomsPlaced < maxAtoms) {
 
-                // Set atom with the calculated probability
-                if (random.nextDouble() < probability) {
-                    cells[i][j].setAtom();
-                    atomsSet++; // Increment the counter for the number of atoms set
+                    // Loop until 6 atoms are placed
+                    // Generate random coordinates within the board size
+
+                    //calculate the length of the current row
+
+
+
+                    int y = random.nextInt(BOARD_SIZE);
+                    int rowLength = 0;
+
+                    if(y <= 4) {
+                        rowLength = 5+y;
+                    } else {
+                        rowLength = 13-y;
+                    }
+                    int x = random.nextInt(rowLength);
+
+                    // Check if there is no atom already at the generated position
+                    if (!board.getCells()[y][x].hasAtom()) {
+                        // If the cell is empty, set an atom at the generated position
+                        board.getCells()[y][x].setAtom();
+                        atomsPlaced++; // Increment the counter for atoms placed
+                    }
                 }
             }
-        }
-    }
+
+
+            //here we need a loop that goes through the rows
+
 
     public Cell[][] getCells() {
         return cells;
