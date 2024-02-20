@@ -20,6 +20,7 @@ public class Board {
 
     final int BOARD_SIZE = 9;
     private final double ROW_HEIGHT = 50.0;
+    private Random random = new Random();
 
     //Board constructor creates the board and each of its cells and also sets up the neighbours of each cell
     public Board() {
@@ -88,8 +89,6 @@ public class Board {
     public void generateAtoms(int maxAtoms) {
         //generate 6 random atom numbers
 
-
-            Random random = new Random();
             Board board = this;
 
 
@@ -134,5 +133,10 @@ public class Board {
 
     public void addRayMarker(Integer inputPoint, Integer outputPoint) {
         rayMarkers.put(inputPoint, outputPoint);
+    }
+
+    //useful for testing the generateAtoms methods
+    public void setSeed(int seed) {
+        random = new Random(seed);
     }
 }
