@@ -2,12 +2,11 @@
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BoardTest {
 
-    @Test   //tests if the board and cell neighbours are set up correctly
-    void testBoard() {
+    @Test
+    void testNeighbours() {
         Board board = new Board();
 
         //testing row index 0
@@ -39,8 +38,9 @@ public class BoardTest {
         assertEquals(board.getCells()[7][2], board.getCells()[8][1].getNeighbours()[1]); //checking the upper-right neighbour
     }
 
+    //tests if the board and cell neighbours are set up correctly
     @Test
-    public void testNeighbours() {
+    public void testBoard() {
         Board board = new Board();
 
         // Get the cells array
@@ -60,6 +60,27 @@ public class BoardTest {
 
             }
         }
+
+        assertEquals(5, cells[0].length);
+        assertEquals(9, cells[4].length);
+        assertEquals(7, cells[6].length);
+    }
+
+    @Test
+    public void testGenerateAtoms() {
+        Board board = new Board();
+        board.setSeed(0);
+        board.generateAtoms(6);
+        Cell[][] cells = board.getCells();
+
+        //seed 0 should set atoms in the following cells
+        assertTrue(cells[2][2].hasAtom());
+        assertTrue(cells[4][2].hasAtom());
+        assertTrue(cells[5][2].hasAtom());
+        assertTrue(cells[6][2].hasAtom());
+        assertTrue(cells[8][1].hasAtom());
+        assertTrue(cells[8][3].hasAtom());
+        assertFalse(cells[6][3].hasAtom());
     }
 
 }
