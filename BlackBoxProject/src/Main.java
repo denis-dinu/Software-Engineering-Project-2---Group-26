@@ -28,18 +28,35 @@ public class Main extends Application {
         Button backButton = new Button("Back to Menu");
         backButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
 
-        backButton.setOnAction(event -> primaryStage.setScene(createMainMenuScene(primaryStage))); // Pass primaryStage to createMainMenuScene
+        Button toggleAtomsButton = new Button("Toggle Atoms Visibility");
+        toggleAtomsButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
+
+        // Toggle atom visibility when the button is clicked
+        toggleAtomsButton.setOnAction(event -> {
+            boolean currentVisibility = boardUI.areAtomsVisible();
+            boardUI.setAtomsVisible(!currentVisibility);
+        });
+
+        // Set the action for the "Back to Menu" button
+        backButton.setOnAction(event -> {
+            primaryStage.setScene(createMainMenuScene(primaryStage)); // Set the main menu scene directly
+        });
+
+        // Create an HBox to contain both buttons
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(backButton, toggleAtomsButton);
 
         // Create an HBox to center the board horizontally and add padding to the left
         HBox boardContainer = new HBox();
         boardContainer.setAlignment(Pos.CENTER);
-        boardContainer.setPadding(new Insets(0, 0, 0, 1300/2)); // Add padding to the left side
+        boardContainer.setPadding(new Insets(0, 0, 0, 1300 / 2)); // Add padding to the left side
         boardContainer.getChildren().add(boardUI);
 
         // Create a layout pane for the game components
         VBox gamePane = new VBox(10);
         gamePane.setAlignment(Pos.CENTER);
-        gamePane.getChildren().addAll(boardContainer, backButton);
+        gamePane.getChildren().addAll(boardContainer, buttonBox);
 
         // Create a layout pane to center the game components horizontally
         StackPane root = new StackPane();
@@ -47,6 +64,8 @@ public class Main extends Application {
         root.getChildren().add(gamePane);
         return new Scene(root, 1300, 800);
     }
+
+
 
 
     // Method to create the main menu scene

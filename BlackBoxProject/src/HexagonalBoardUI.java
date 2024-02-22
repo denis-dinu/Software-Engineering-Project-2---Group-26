@@ -10,13 +10,28 @@ public class HexagonalBoardUI extends Pane {
     private static final Color HEX_COLOR = Color.LIGHTGRAY;
 
     private final Board board;
+    private boolean atomsVisible = true; // Track the visibility state of atoms
+    public boolean togglePress = false;
 
     public HexagonalBoardUI(Board board) {
         this.board = board;
         drawBoard();
     }
 
+    // Method to toggle the visibility of atoms
+    public void setAtomsVisible(boolean visible) {
+        atomsVisible = visible;
+         togglePress = true;
+        drawBoard(); // Redraw the board with updated visibility
+    }
+
+    public boolean areAtomsVisible() {
+        return atomsVisible;
+    }
+
     private void drawBoard() {
+        getChildren().clear(); // Clear previous drawings
+
         Cell[][] cells = board.getCells();
 
         double horizontalGap = 1; // Adjust horizontal gap
@@ -24,15 +39,21 @@ public class HexagonalBoardUI extends Pane {
 
         boolean isOffset = false; // Flag to track alternating offset
 
+        double sceneWidth = getWidth();
+        double sceneHeight = getHeight();
+
+        // TODO
+        if(togglePress)sceneWidth /= 200; // a bad fix for a dumb bug
+
         for (int i = 0; i < cells.length; i++) {
             int rowLength = cells[i].length;
             double rowWidth = HEX_WIDTH * rowLength + (rowLength - 1) * horizontalGap;
             double rowStartX;
 
             if (isOffset) {
-                rowStartX = (getWidth() - rowWidth) / 2.0 - HEX_WIDTH/2; // Offset backward
+                rowStartX = (sceneWidth - rowWidth) / 2.0 - HEX_WIDTH / 2; // Offset backward
             } else {
-                rowStartX = (getWidth() - rowWidth) / 2.0; // No offset
+                rowStartX = (sceneWidth - rowWidth) / 2.0; // No offset
             }
 
             for (int j = 0; j < rowLength; j++) {
@@ -47,17 +68,21 @@ public class HexagonalBoardUI extends Pane {
                 // Check if the cell has an atom
                 boolean hasAtom = cells[i][j] != null && cells[i][j].hasAtom();
 
-                drawHexagon(centerX, centerY, hasAtom);
+                // Draw hexagon and atom only if atoms are visible
+                if (atomsVisible) {
+                    drawHexagon(centerX, centerY, hasAtom);
+                    if (hasAtom) {
+                        drawAtom(centerX, centerY);
+                    }
+                } else {
+                    // Only draw hexagon if atoms are not visible
+                    drawHexagon(centerX, centerY, false);
+                }
             }
-
             // Toggle offset flag for the next row
             isOffset = !isOffset;
         }
     }
-
-
-
-
 
 
     private void drawHexagon(double centerX, double centerY, boolean hasAtom) {
@@ -84,15 +109,11 @@ public class HexagonalBoardUI extends Pane {
         outlineHexagon.setFill(Color.TRANSPARENT); // Make sure it's not filled
         outlineHexagon.setStrokeWidth(2); // Set outline width
         getChildren().add(outlineHexagon);
-
-        // Add atom circle if the cell has an atom
-        if (hasAtom) {
-            Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
-            atomCircle.setFill(Color.RED); // Atom color
-            getChildren().add(atomCircle);
-        }
     }
 
-
-
+    private void drawAtom(double centerX, double centerY) {
+        Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
+        atomCircle.setFill(Color.RED); // Atom color
+        getChildren().add(atomCircle);
+    }
 }
