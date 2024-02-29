@@ -1,5 +1,6 @@
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -18,8 +19,8 @@ public class Board {
      */
     private final HashMap<Integer, Integer> rayMarkers;
 
-    final int BOARD_SIZE = 9;
-    private final double ROW_HEIGHT = 50.0;
+    final static int BOARD_SIZE = 9;
+    private final static double ROW_HEIGHT = 50.0;
     private Random random = new Random();
 
     //Board constructor creates the board and each of its cells and also sets up the neighbours of each cell
@@ -44,6 +45,8 @@ public class Board {
             //create cells on the current row up to the length of the row
             for(int j=0; j<rowLength; j++) {
                 cells[i][j] = new Cell();
+                cells[i][j].setRow(i);
+                cells[i][j].setCol(j);
 
                 //setting up neighbours
 
@@ -103,7 +106,7 @@ public class Board {
 
 
                     int y = random.nextInt(BOARD_SIZE);
-                    int rowLength = 0;
+                    int rowLength;
 
                     if(y <= 4) {
                         rowLength = 5+y;

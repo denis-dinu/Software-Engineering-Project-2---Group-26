@@ -96,3 +96,20 @@ public class Main extends Application {
         launch(args);
     }
 }
+
+
+/*
+    GAME LOOP PSEUDOCODE
+
+    //condition to break from the loop will be added in sprint 3 when we implement the experimenter ending the round
+    while(true) {
+
+        inputPoint = get and validate user input from console
+        outputPoint = Ray.process(board, inputPoint)
+        board.addRayMarker(inputPoint, outputPoint)
+        display the board again with added ray markers
+
+        //sprint 3 - allow the experimenter to place/remove an atom marker (to make guesses)
+
+    }
+ */

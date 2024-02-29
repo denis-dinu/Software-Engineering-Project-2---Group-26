@@ -53,10 +53,10 @@ public class BoardTest {
 
                 if (j > 0) assertNotNull(cell.getNeighbours()[5]); // Left neighbor should not be null
 
-                if (i > 0 && (j > 0 || i > board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[0]); // Upper-left neighbor should not be null
-                if (i > 0 && (j < cells[i].length-1 || i > board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[1]); // Upper-right neighbor should not be null
-                if (i < board.BOARD_SIZE-1 && (j < cells[i].length-1 || i < board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[3]); // Lower-right neighbor should not be null
-                if (i < board.BOARD_SIZE-1 && (j > 0 || i < board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[4]); // Lower-left neighbor should not be null
+                if (i > 0 && (j > 0 || i > Board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[0]); // Upper-left neighbor should not be null
+                if (i > 0 && (j < cells[i].length-1 || i > Board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[1]); // Upper-right neighbor should not be null
+                if (i < Board.BOARD_SIZE -1 && (j < cells[i].length-1 || i < Board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[3]); // Lower-right neighbor should not be null
+                if (i < Board.BOARD_SIZE-1 && (j > 0 || i < Board.BOARD_SIZE / 2)) assertNotNull(cell.getNeighbours()[4]); // Lower-left neighbor should not be null
 
             }
         }
