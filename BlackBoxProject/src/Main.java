@@ -1,8 +1,11 @@
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -27,9 +30,13 @@ public class Main extends Application {
 
         Button backButton = new Button("Back to Menu");
         backButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
+        backButton.setMinWidth(100); // Set the minimum width for the button
+        backButton.setMinHeight(50); // Set the minimum height for the button
 
         Button toggleAtomsButton = new Button("Toggle Atoms Visibility");
         toggleAtomsButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
+        toggleAtomsButton.setMinWidth(200); // Set the minimum width for the button
+        toggleAtomsButton.setMinHeight(50); // Set the minimum height for the button
 
         // Toggle atom visibility when the button is clicked
         toggleAtomsButton.setOnAction(event -> {
@@ -50,13 +57,45 @@ public class Main extends Application {
         // Create an HBox to center the board horizontally and add padding to the left
         HBox boardContainer = new HBox();
         boardContainer.setAlignment(Pos.CENTER);
-        boardContainer.setPadding(new Insets(0, 0, 0, 1300 / 2)); // Add padding to the left side
+        boardContainer.setPadding(new Insets(0, 0, 0, 1300.0 / 2.0)); // Add padding to the left side
         boardContainer.getChildren().add(boardUI);
+
+        // Create the console components
+        TextField inputField = new TextField();
+        inputField.setPromptText("Enter input coordinate");
+        inputField.setStyle("-fx-font-size: 14;");
+        inputField.setPrefWidth(200); // Set a fixed width for the input field
+
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+        outputArea.setStyle("-fx-font-size: 14;");
+        outputArea.setPrefWidth(200); // Set a fixed width for the output area
+        outputArea.setPrefHeight(100); // Set a fixed height for the output area
+
+        // Set the action for the input field
+        inputField.setOnAction(event -> {
+            try {
+                int inputCoordinate = Integer.parseInt(inputField.getText());
+                int outputCoordinate = Ray.process(board, inputCoordinate);
+                if (outputCoordinate == -1) {
+                    outputArea.setText("Ray absorbed");
+                } else {
+                    outputArea.setText("Output coordinate: " + outputCoordinate);
+                }
+            } catch (NumberFormatException e) {
+                outputArea.setText("Invalid input, please enter a valid coordinate");
+            }
+        });
+
+        // Create an HBox to contain the input field and output area
+        HBox consoleBox = new HBox(10); // Adjust spacing between components as needed
+        consoleBox.setAlignment(Pos.CENTER);
+        consoleBox.getChildren().addAll(inputField, outputArea);
 
         // Create a layout pane for the game components
         VBox gamePane = new VBox(10);
         gamePane.setAlignment(Pos.CENTER);
-        gamePane.getChildren().addAll(boardContainer, buttonBox);
+        gamePane.getChildren().addAll(boardContainer, buttonBox, consoleBox);
 
         // Create a layout pane to center the game components horizontally
         StackPane root = new StackPane();
@@ -64,7 +103,6 @@ public class Main extends Application {
         root.getChildren().add(gamePane);
         return new Scene(root, 1300, 800);
     }
-
 
 
 
@@ -96,20 +134,3 @@ public class Main extends Application {
         launch(args);
     }
 }
-
-
-/*
-    GAME LOOP PSEUDOCODE
-
-    //condition to break from the loop will be added in sprint 3 when we implement the experimenter ending the round
-    while(true) {
-
-        inputPoint = get and validate user input from console
-        outputPoint = Ray.process(board, inputPoint)
-        board.addRayMarker(inputPoint, outputPoint)
-        display the board again with added ray markers
-
-        //sprint 3 - allow the experimenter to place/remove an atom marker (to make guesses)
-
-    }
- */

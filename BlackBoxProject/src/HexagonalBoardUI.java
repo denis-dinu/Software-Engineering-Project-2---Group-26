@@ -4,7 +4,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
 public class HexagonalBoardUI extends Pane {
-    private static final double HEX_SIZE = 50.0;
+    private static final double HEX_SIZE = 35.0;
     private static final double HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
     private static final double HEX_HEIGHT = 2 * HEX_SIZE;
     private static final Color HEX_COLOR = Color.LIGHTGRAY;
@@ -21,7 +21,7 @@ public class HexagonalBoardUI extends Pane {
     // Method to toggle the visibility of atoms
     public void setAtomsVisible(boolean visible) {
         atomsVisible = visible;
-         togglePress = true;
+        togglePress = true;
         drawBoard(); // Redraw the board with updated visibility
     }
 

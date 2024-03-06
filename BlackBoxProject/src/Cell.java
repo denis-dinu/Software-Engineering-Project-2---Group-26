@@ -5,6 +5,7 @@ public class Cell {
     private boolean atom;
     private double yPosition;   //used for the GUI
 
+
     /*
         An array that stores references to the cells which are neighbours of this cell (according to the
         visual representation of the board):
@@ -25,11 +26,21 @@ public class Cell {
         and the exit point from this cell - used for the final display of rays on the board
      */
     private final ArrayList<RaySegment> raySegments;
+    private int label;
 
     public Cell() {
         this.atom = false;
         this.neighbours = new Cell[6];
         this.raySegments = new ArrayList<>();
+        this.label = 0;
+    }
+
+    public int getLabel() {
+        return label;
+    }
+
+    public void setLabel(int label) {
+        this.label = label;
     }
 
     public void setNeighbour(int position, Cell newNeighbour) {
