@@ -73,6 +73,7 @@ public class Main extends Application {
         outputArea.setPrefHeight(100); // Set a fixed height for the output area
 
         // Set the action for the input field
+        // Inside the createGameScene method after processing the input field
         inputField.setOnAction(event -> {
             try {
                 int inputCoordinate = Integer.parseInt(inputField.getText());
@@ -82,10 +83,15 @@ public class Main extends Application {
                 } else {
                     outputArea.setText("Output coordinate: " + outputCoordinate);
                 }
+
+                // Refresh the board to show the updated ray path
+                boardUI.drawBoard();
+                boardUI.drawRayMarkers(); // Draw ray markers after updating the board
             } catch (NumberFormatException e) {
                 outputArea.setText("Invalid input, please enter a valid coordinate");
             }
         });
+
 
         // Create an HBox to contain the input field and output area
         HBox consoleBox = new HBox(10); // Adjust spacing between components as needed

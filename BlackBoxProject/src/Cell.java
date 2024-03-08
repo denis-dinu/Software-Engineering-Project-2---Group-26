@@ -26,22 +26,17 @@ public class Cell {
         and the exit point from this cell - used for the final display of rays on the board
      */
     private final ArrayList<RaySegment> raySegments;
-    private int label;
+
 
     public Cell() {
         this.atom = false;
         this.neighbours = new Cell[6];
         this.raySegments = new ArrayList<>();
-        this.label = 0;
+
     }
 
-    public int getLabel() {
-        return label;
-    }
 
-    public void setLabel(int label) {
-        this.label = label;
-    }
+
 
     public void setNeighbour(int position, Cell newNeighbour) {
 
