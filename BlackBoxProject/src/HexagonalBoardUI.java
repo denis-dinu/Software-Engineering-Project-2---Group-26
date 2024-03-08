@@ -45,7 +45,10 @@ public class HexagonalBoardUI extends Pane {
         double sceneHeight = getHeight();
 
         // TODO
-        if(weirdBoard)sceneWidth /= 4000; // a bad fix for a dumb bug
+        if (weirdBoard) sceneWidth /= 4000; // a bad fix for a dumb bug
+
+        // List to store the coordinates of cells with atoms
+        ArrayList<double[]> atomCoordinates = new ArrayList<>();
 
         for (int i = 0; i < cells.length; i++) {
             int rowLength = cells[i].length;
@@ -54,7 +57,6 @@ public class HexagonalBoardUI extends Pane {
 
             if (isOffset) rowStartX = (sceneWidth - rowWidth) / 2.0 - HEX_WIDTH / 2; // Offset backward
             else rowStartX = (sceneWidth - rowWidth) / 2.0; // No offset
-
 
             for (int j = 0; j < rowLength; j++) {
                 double centerX;
@@ -65,16 +67,17 @@ public class HexagonalBoardUI extends Pane {
                 // Check if the cell has an atom
                 boolean hasAtom = cells[i][j] != null && cells[i][j].hasAtom();
 
-                // Draw hexagon and atom only if atoms are visible
+                // Draw hexagon only if atoms are visible
                 if (atomsVisible) {
                     drawHexagon(centerX, centerY, hasAtom);
-                    if (hasAtom) drawAtom(centerX, centerY);
-                }
-                else drawHexagon(centerX, centerY, false);
+                    if (hasAtom) {
+                        // Store the coordinates of cells with atoms
+                        atomCoordinates.add(new double[]{centerX, centerY});
+                    }
+                } else drawHexagon(centerX, centerY, false);
 
                 ArrayList<RaySegment> raySegments = cells[i][j].getRaySegments();
                 if (raySegments.size() > 0) {
-                  //  weirdBoard = true;
                     // Draw a gray hexagon to mark the cell as part of the ray's path
                     drawHexagon(centerX, centerY, true);
 
@@ -85,7 +88,17 @@ public class HexagonalBoardUI extends Pane {
             // Toggle offset flag for the next row
             isOffset = !isOffset;
         }
+//////////////////////////////////////
+        // Draw atoms and their circles of influence after drawing all cells
+        if (atomsVisible) {
+            for (double[] coordinates : atomCoordinates) {
+                drawAtom(coordinates[0], coordinates[1]);
+                drawAtomCircleOfInfluence(coordinates[0], coordinates[1]);
+            }
+        }
+        /////////////////////////
     }
+
 
 
     private void drawRayMarkers(double centerX, double centerY) {
@@ -108,6 +121,7 @@ public class HexagonalBoardUI extends Pane {
         // Add the hexagon to the pane
         getChildren().add(hexagon);
     }
+
 
 
     private void drawHexagon(double centerX, double centerY, boolean hasAtom) {
@@ -140,5 +154,20 @@ public class HexagonalBoardUI extends Pane {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
         atomCircle.setFill(Color.RED); // Atom color
         getChildren().add(atomCircle);
+    }
+
+    ////////
+    private void drawAtomCircleOfInfluence(double centerX, double centerY) {
+        // Define the radius of the circle of influence
+        double influenceRadius = HEX_SIZE * 1.5; // Adjust the multiplier as needed for the desired size
+
+        // Create a transparent circle representing the influence of the atom
+        Circle atomInfluenceCircle = new Circle(centerX, centerY, influenceRadius);
+        atomInfluenceCircle.setFill(Color.TRANSPARENT);
+        atomInfluenceCircle.setStroke(Color.RED);
+        atomInfluenceCircle.setStrokeWidth(2); // Adjust the stroke width as needed
+
+        // Add the circle to the pane
+        getChildren().add(atomInfluenceCircle);
     }
 }
