@@ -78,16 +78,14 @@ public class Main extends Application {
             try {
                 int inputCoordinate = Integer.parseInt(inputField.getText());
                 int outputCoordinate = Ray.process(board, inputCoordinate);
-                if (outputCoordinate == -1) {
-                    outputArea.setText("Ray absorbed");
-                } else {
-                    outputArea.setText("Output coordinate: " + outputCoordinate);
-                }
+                if (outputCoordinate == -1) outputArea.setText("Ray absorbed");
+                else outputArea.setText("Output coordinate: " + outputCoordinate);
 
                 // Refresh the board to show the updated ray path
+                boardUI.weirdBoard = true;
                 boardUI.drawBoard();
-                boardUI.drawRayMarkers(); // Draw ray markers after updating the board
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e) {
                 outputArea.setText("Invalid input, please enter a valid coordinate");
             }
         });
