@@ -103,6 +103,13 @@ public class Board {
         }
     }
 
+    /**
+     * Method which randomly generates board positions for the number of atoms specified in its parameter.
+     * This method modifies the internal state of the board, by setting a boolean flag in the chosen cells.
+     *
+     * @param maxAtoms the number of atom positions to generate
+     */
+
     public void generateAtoms(int maxAtoms) {
         //generate 6 random atom numbers
 
