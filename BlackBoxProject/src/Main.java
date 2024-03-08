@@ -85,10 +85,9 @@ public class Main extends Application {
                 }
 
                 // Refresh the board to show the updated ray path
-                boardUI.weirdBoard = true;
                 boardUI.drawBoard();
-                //boardUI.drawRayMarkers(); // Draw ray markers after updating the board
-            } catch (NumberFormatException e) {
+                boardUI.drawRayMarkers(); // Draw ray markers after updating the board
+            } catch (IllegalArgumentException e) {
                 outputArea.setText("Invalid input, please enter a valid coordinate");
             }
         });
