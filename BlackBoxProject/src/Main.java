@@ -22,17 +22,59 @@ public class Main extends Application {
     }
 
     private Scene createGameScene(Stage primaryStage) {
-        Board board = new Board();
-        board.generateAtoms(6);
+        //start a new game
+        Game game = new Game();
 
-        // Create the game board UI
-        HexagonalBoardUI boardUI = new HexagonalBoardUI(board);
+        // Create the game components
+        // Create an HBox to contain the game's board UI
+        Region boardContainer = createBoardContainer(game.getBoardUI());
 
+        // Create game scene buttons and an HBox to contain them
+        Region buttonBox = createButtonBox(primaryStage, game.getBoardUI());
+
+        // Create the input field and output area and an HBox to contain them
+        Region consoleBox = createConsoleBox(game);
+
+
+        // Create a layout pane for the game components
+        Region gamePane = createGamePane(boardContainer, buttonBox, consoleBox);
+
+        return new Scene(gamePane, 1300, 800);
+    }
+
+    //--- Methods to create the game scene components ---
+
+    // Create an HBox to center the board horizontally and add padding to the left
+    private Region createBoardContainer(HexagonalBoardUI boardUI) {
+        HBox boardContainer = new HBox();
+        boardContainer.setAlignment(Pos.CENTER);
+        boardContainer.setPadding(new Insets(0, 0, 0, 1300.0 / 2.0)); // Add padding to the left side
+        boardContainer.getChildren().add(boardUI);
+        return boardContainer;
+    }
+
+    private Region createButtonBox(Stage primaryStage, HexagonalBoardUI boardUI) {
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(createBackButton(primaryStage), createToggleAtomsButton(boardUI));
+        return buttonBox;
+    }
+
+    private Button createBackButton(Stage primaryStage) {
         Button backButton = new Button("Back to Menu");
         backButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
         backButton.setMinWidth(100); // Set the minimum width for the button
         backButton.setMinHeight(50); // Set the minimum height for the button
 
+        // Set the action for the "Back to Menu" button
+        backButton.setOnAction(event -> {
+            primaryStage.setScene(createMainMenuScene(primaryStage)); // Set the main menu scene directly
+            primaryStage.setTitle("Main menu");
+        });
+        return backButton;
+    }
+
+    private static Button createToggleAtomsButton(HexagonalBoardUI boardUI) {
         Button toggleAtomsButton = new Button("Toggle Atoms Visibility");
         toggleAtomsButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
         toggleAtomsButton.setMinWidth(200); // Set the minimum width for the button
@@ -43,69 +85,59 @@ public class Main extends Application {
             boolean currentVisibility = boardUI.areAtomsVisible();
             boardUI.setAtomsVisible(!currentVisibility);
         });
+        return toggleAtomsButton;
+    }
 
-        // Set the action for the "Back to Menu" button
-        backButton.setOnAction(event -> {
-            primaryStage.setScene(createMainMenuScene(primaryStage)); // Set the main menu scene directly
-        });
-
-        // Create an HBox to contain both buttons
-        HBox buttonBox = new HBox(20);
-        buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.getChildren().addAll(backButton, toggleAtomsButton);
-
-        // Create an HBox to center the board horizontally and add padding to the left
-        HBox boardContainer = new HBox();
-        boardContainer.setAlignment(Pos.CENTER);
-        boardContainer.setPadding(new Insets(0, 0, 0, 1300.0 / 2.0)); // Add padding to the left side
-        boardContainer.getChildren().add(boardUI);
+    private Region createConsoleBox(Game game) {
+        HBox consoleBox = new HBox(10); // Adjust spacing between components as needed
+        consoleBox.setAlignment(Pos.CENTER);
 
         // Create the console components
-        TextField inputField = new TextField();
-        inputField.setPromptText("Enter input coordinate");
-        inputField.setStyle("-fx-font-size: 14;");
-        inputField.setPrefWidth(200); // Set a fixed width for the input field
+        TextArea outputArea = createOutputArea();
+        TextField inputField = createInputField(game, outputArea);
 
+        consoleBox.getChildren().addAll(inputField, outputArea);
+        return consoleBox;
+    }
+
+    private TextArea createOutputArea() {
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
         outputArea.setStyle("-fx-font-size: 14;");
         outputArea.setPrefWidth(200); // Set a fixed width for the output area
         outputArea.setPrefHeight(100); // Set a fixed height for the output area
+        return outputArea;
+    }
+
+    private TextField createInputField(Game game, TextArea outputArea) {
+        TextField inputField = new TextField();
+        inputField.setPromptText("Enter ray input point");
+        inputField.setStyle("-fx-font-size: 14;");
+        inputField.setPrefWidth(200); // Set a fixed width for the input field
+
 
         // Set the action for the input field
-        // Inside the createGameScene method after processing the input field
         inputField.setOnAction(event -> {
             try {
-                int inputCoordinate = Integer.parseInt(inputField.getText());
-                int outputCoordinate = Ray.process(board, inputCoordinate);
-                if (outputCoordinate == -1) outputArea.setText("Ray absorbed");
-                else outputArea.setText("Output coordinate: " + outputCoordinate);
+                int outputCoordinate = game.sendExperimenterRay(inputField.getText());
 
-                // Refresh the board to show the updated ray path
-                boardUI.weirdBoard = true;
-                boardUI.drawBoard();
+                if (outputCoordinate == -1) outputArea.setText("Ray absorbed");
+                else outputArea.setText("Output point: " + outputCoordinate);
             }
             catch (IllegalArgumentException e) {
-                outputArea.setText("Invalid input, please enter a valid coordinate");
+                outputArea.setText("Invalid input point, please enter a valid input point");
             }
         });
 
+        return inputField;
+    }
 
-        // Create an HBox to contain the input field and output area
-        HBox consoleBox = new HBox(10); // Adjust spacing between components as needed
-        consoleBox.setAlignment(Pos.CENTER);
-        consoleBox.getChildren().addAll(inputField, outputArea);
-
-        // Create a layout pane for the game components
+    private Region createGamePane(Region boardContainer, Region buttonBox, Region consoleBox) {
         VBox gamePane = new VBox(10);
         gamePane.setAlignment(Pos.CENTER);
         gamePane.getChildren().addAll(boardContainer, buttonBox, consoleBox);
-
-        // Create a layout pane to center the game components horizontally
-        StackPane root = new StackPane();
-        root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
-        root.getChildren().add(gamePane);
-        return new Scene(root, 1300, 800);
+        gamePane.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
+        return gamePane;
     }
 
 
@@ -113,24 +145,38 @@ public class Main extends Application {
     // Method to create the main menu scene
     private Scene createMainMenuScene(Stage primaryStage) {
         // This method creates the main menu scene as before
+
+        Button playButton = createPlayButton(primaryStage);
+        Button exitButton = createExitButton(primaryStage);
+        Region root = createMainMenuRoot(playButton, exitButton);
+
+        return new Scene(root, 1300, 800);
+    }
+
+    private Button createPlayButton(Stage primaryStage) {
         Button playButton = new Button("Play");
-        Button exitButton = new Button("Exit");
-
         playButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
+        playButton.setOnAction(event -> {
+            primaryStage.setScene(createGameScene(primaryStage)); // Pass primaryStage to createGameScene
+            primaryStage.setTitle("BlackBox");
+        });
+        return playButton;
+    }
+
+    private Button createExitButton(Stage primaryStage) {
+        Button exitButton = new Button("Exit");
         exitButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
-
-        playButton.setOnAction(event -> primaryStage.setScene(createGameScene(primaryStage))); // Pass primaryStage to createGameScene
         exitButton.setOnAction(event -> primaryStage.close());
+        return exitButton;
+    }
 
-        StackPane root = new StackPane();
-        root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
-
+    private Region createMainMenuRoot(Button playButton, Button exitButton) {
         VBox buttonBox = new VBox(20);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(playButton, exitButton);
+        buttonBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
 
-        root.getChildren().add(buttonBox);
-        return new Scene(root, 1300, 800);
+        return buttonBox;
     }
 
     public static void main(String[] args) {
