@@ -10,4 +10,9 @@ public record RaySegment(int entryPoint, int exitPoint) {
         is -1 if the ray is absorbed (and doesn't exit the cell)
 
      */
+
+    // Getter method for the exitPoint field
+    public int exitPoint() {
+        return exitPoint;
+    }
 }

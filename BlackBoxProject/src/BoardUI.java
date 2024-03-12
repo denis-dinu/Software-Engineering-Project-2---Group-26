@@ -1,11 +1,12 @@
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
 
-public class HexagonalBoardUI extends Pane {
+public class BoardUI extends Pane {
     private static final double HEX_SIZE = 35.0;
     private static final double HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
     private static final double HEX_HEIGHT = 2 * HEX_SIZE;
@@ -15,7 +16,7 @@ public class HexagonalBoardUI extends Pane {
     private boolean atomsVisible = true; // Track the visibility state of atoms
     public boolean weirdBoard = false;
 
-    public HexagonalBoardUI(Board board) {
+    public BoardUI(Board board) {
         this.board = board;
         drawBoard();
     }
@@ -81,14 +82,87 @@ public class HexagonalBoardUI extends Pane {
                     // Draw a gray hexagon to mark the cell as part of the ray's path
                     drawHexagon(centerX, centerY, true);
 
-                    // Draw smaller hexes as ray markers
-                    drawRayMarkers(centerX, centerY);
+                    // Draw the ray segments
+                    // Inside the drawBoard method
+                    // Inside the drawBoard method
+                    // Inside the drawBoard method
+                    for (RaySegment segment : raySegments) {
+                        double entryX, entryY, exitX, exitY;
+
+                        // Calculate entry point coordinates based on entry position
+                        switch (segment.entryPoint()) {
+                            case 0: // Entering through upper-left
+                                entryX = centerX - HEX_SIZE * 0.5;
+                                entryY = centerY - HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 1: // Entering through upper-right
+                                entryX = centerX + HEX_SIZE * 0.5;
+                                entryY = centerY - HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 2: // Entering through right
+                                entryX = centerX + HEX_SIZE;
+                                entryY = centerY;
+                                break;
+                            case 3: // Entering through lower-right
+                                entryX = centerX + HEX_SIZE * 0.5;
+                                entryY = centerY + HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 4: // Entering through lower-left
+                                entryX = centerX - HEX_SIZE * 0.5;
+                                entryY = centerY + HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 5: // Entering through left
+                                entryX = centerX - HEX_SIZE;
+                                entryY = centerY;
+                                break;
+                            default: // Ray absorbed, entry coordinates same as exit coordinates
+                                entryX = centerX;
+                                entryY = centerY;
+                        }
+
+                        // Calculate exit point coordinates based on exit position
+                        switch (segment.exitPoint()) {
+                            case 0: // Exiting through upper-left
+                                exitX = centerX - HEX_SIZE * 0.5;
+                                exitY = centerY - HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 1: // Exiting through upper-right
+                                exitX = centerX + HEX_SIZE * 0.5;
+                                exitY = centerY - HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 2: // Exiting through right
+                                exitX = centerX + HEX_SIZE;
+                                exitY = centerY;
+                                break;
+                            case 3: // Exiting through lower-right
+                                exitX = centerX + HEX_SIZE * 0.5;
+                                exitY = centerY + HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 4: // Exiting through lower-left
+                                exitX = centerX - HEX_SIZE * 0.5;
+                                exitY = centerY + HEX_SIZE * Math.sqrt(3) / 2;
+                                break;
+                            case 5: // Exiting through left
+                                exitX = centerX - HEX_SIZE;
+                                exitY = centerY;
+                                break;
+                            default: // Ray absorbed, exit coordinates same as entry coordinates
+                                exitX = entryX;
+                                exitY = entryY;
+                        }
+
+                        // Draw the line representing the ray segment
+                        drawRaySegment(entryX, entryY, exitX, exitY);
+                    }
+
+
+
                 }
             }
             // Toggle offset flag for the next row
             isOffset = !isOffset;
         }
-//////////////////////////////////////
+        //////////////////////////////////////
         // Draw atoms and their circles of influence after drawing all cells
         if (atomsVisible) {
             for (double[] coordinates : atomCoordinates) {
@@ -99,30 +173,13 @@ public class HexagonalBoardUI extends Pane {
         /////////////////////////
     }
 
-
-
-    private void drawRayMarkers(double centerX, double centerY) {
-        // Create a hexagon with a smaller size to represent the ray marker
-       // weirdBoard = true;
-        double markerHexSize = HEX_SIZE * 0.7;
-
-        // Draw a hexagon at the specified location
-        Polygon hexagon = new Polygon();
-        for (int i = 0; i < 6; i++) {
-            double angleRad = Math.toRadians(60 * i - 30);
-            double x = centerX + markerHexSize * Math.cos(angleRad);
-            double y = centerY + markerHexSize * Math.sin(angleRad);
-            hexagon.getPoints().addAll(x, y);
-        }
-
-        // Fill the hexagon with gray color
-        hexagon.setFill(Color.GRAY);
-
-        // Add the hexagon to the pane
-        getChildren().add(hexagon);
+    // Method to draw a line representing a ray segment
+    private void drawRaySegment(double startX, double startY, double endX, double endY) {
+        Line rayLine = new Line(startX, startY, endX, endY);
+        rayLine.setStroke(Color.RED); // Set the color of the ray line
+        rayLine.setStrokeWidth(2); // Set the width of the ray line
+        getChildren().add(rayLine); // Add the ray line to the pane
     }
-
-
 
     private void drawHexagon(double centerX, double centerY, boolean hasAtom) {
         // Create a filled hexagon
@@ -164,7 +221,7 @@ public class HexagonalBoardUI extends Pane {
         // Create a transparent circle representing the influence of the atom
         Circle atomInfluenceCircle = new Circle(centerX, centerY, influenceRadius);
         atomInfluenceCircle.setFill(Color.TRANSPARENT);
-        atomInfluenceCircle.setStroke(Color.RED);
+        atomInfluenceCircle.setStroke(Color.GRAY);
         atomInfluenceCircle.setStrokeWidth(2); // Adjust the stroke width as needed
 
         // Add the circle to the pane
