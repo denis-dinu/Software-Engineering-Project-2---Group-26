@@ -26,7 +26,7 @@ public class Main extends Application {
         board.generateAtoms(6);
 
         // Create the game board UI
-        BoardUI boardUI = new BoardUI(board);
+        HexagonalBoardUI boardUI = new HexagonalBoardUI(board);
 
         Button backButton = new Button("Back to Menu");
         backButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
