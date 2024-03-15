@@ -38,10 +38,6 @@ public class Game {
         return inputCoordinate;
     }
 
-    public Board getBoard() {
-        return board;
-    }
-
     public HexagonalBoardUI getBoardUI() {
         return boardUI;
     }
