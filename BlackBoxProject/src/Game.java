@@ -20,15 +20,22 @@ public class Game {
      * @return the resulting output point to be announced to the experimenter
      */
     public int sendExperimenterRay(String input) {
-        int inputCoordinate = Integer.parseInt(input);
+        int inputCoordinate = validateExperimenterInput(input);
         int outputCoordinate = Ray.process(board, inputCoordinate);
         board.addRayMarker(inputCoordinate, outputCoordinate);
 
         // Refresh the board to show the updated ray path
-        boardUI.weirdBoard = true;
         boardUI.drawBoard();
 
         return outputCoordinate;
+    }
+
+    private int validateExperimenterInput(String input) {
+        int inputCoordinate = Integer.parseInt(input);
+        if(board.getRayMarkers().containsKey(inputCoordinate) || board.getRayMarkers().containsValue(inputCoordinate)) {
+            throw new InputPointTestedException("Input point has already been tested, please enter another input point");
+        }
+        return inputCoordinate;
     }
 
     public Board getBoard() {
@@ -37,5 +44,13 @@ public class Game {
 
     public HexagonalBoardUI getBoardUI() {
         return boardUI;
+    }
+}
+
+//a custom exception thrown during experimenter input validation to isolate the case where the experimenter
+//supplies an input point for which the ray path has already been calculated
+class InputPointTestedException extends RuntimeException {
+    public InputPointTestedException(String message) {
+        super(message);
     }
 }

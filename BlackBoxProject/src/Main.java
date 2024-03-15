@@ -106,6 +106,7 @@ public class Main extends Application {
         outputArea.setStyle("-fx-font-size: 14;");
         outputArea.setPrefWidth(200); // Set a fixed width for the output area
         outputArea.setPrefHeight(100); // Set a fixed height for the output area
+        outputArea.setWrapText(true);
         return outputArea;
     }
 
@@ -126,6 +127,8 @@ public class Main extends Application {
             }
             catch (IllegalArgumentException e) {
                 outputArea.setText("Invalid input point, please enter a valid input point");
+            } catch (InputPointTestedException e) {
+                outputArea.setText(e.getMessage());
             }
         });
 

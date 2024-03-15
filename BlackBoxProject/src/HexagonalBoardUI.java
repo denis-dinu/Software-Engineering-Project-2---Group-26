@@ -2,6 +2,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Polyline;
+import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 
@@ -13,7 +16,6 @@ public class HexagonalBoardUI extends Pane {
 
     private final Board board;
     private boolean atomsVisible = true; // Track the visibility state of atoms
-    public boolean weirdBoard = false;
 
     public HexagonalBoardUI(Board board) {
         this.board = board;
@@ -23,7 +25,6 @@ public class HexagonalBoardUI extends Pane {
     // Method to toggle the visibility of atoms
     public void setAtomsVisible(boolean visible) {
         atomsVisible = visible;
-        weirdBoard = true;
         drawBoard(); // Redraw the board with updated visibility
     }
 
@@ -41,11 +42,7 @@ public class HexagonalBoardUI extends Pane {
 
         boolean isOffset = false; // Flag to track alternating offset
 
-        double sceneWidth = getWidth();
-        double sceneHeight = getHeight();
-
-        // TODO
-        if (weirdBoard) sceneWidth /= 4000; // a bad fix for a dumb bug
+        double sceneWidth = getWidth() / 4000;
 
         // List to store the coordinates of cells with atoms
         ArrayList<double[]> atomCoordinates = new ArrayList<>();
@@ -67,22 +64,20 @@ public class HexagonalBoardUI extends Pane {
                 // Check if the cell has an atom
                 boolean hasAtom = cells[i][j] != null && cells[i][j].hasAtom();
 
-                // Draw hexagon only if atoms are visible
-                if (atomsVisible) {
-                    drawHexagon(centerX, centerY, hasAtom);
-                    if (hasAtom) {
-                        // Store the coordinates of cells with atoms
-                        atomCoordinates.add(new double[]{centerX, centerY});
-                    }
-                } else drawHexagon(centerX, centerY, false);
+                // Store the coordinates of cells with atoms
+                if (atomsVisible && hasAtom) {
+                    atomCoordinates.add(new double[]{centerX, centerY});
+                }
+                // Draw hexagon
+                drawHexagon(centerX, centerY);
+
+                //add input number labels on the edge of the board (if the cell is an edge cell)
+                drawNumberLabels(centerX, centerY, cells[i][j]);
 
                 ArrayList<RaySegment> raySegments = cells[i][j].getRaySegments();
-                if (raySegments.size() > 0) {
-                    // Draw a gray hexagon to mark the cell as part of the ray's path
-                    drawHexagon(centerX, centerY, true);
-
-                    // Draw smaller hexes as ray markers
-                    drawRayMarkers(centerX, centerY);
+                if (!raySegments.isEmpty()) {
+                    //draw the ray segments passing through this cell, if any
+                    drawRaySegments(centerX, centerY, raySegments);
                 }
             }
             // Toggle offset flag for the next row
@@ -99,55 +94,71 @@ public class HexagonalBoardUI extends Pane {
         /////////////////////////
     }
 
+    private void drawRaySegments(double centerX, double centerY, ArrayList<RaySegment> raySegments) {
+        for(RaySegment raySegment: raySegments) {
+            Polyline polyline = new Polyline();
 
+            //set polyline coordinates
+            polyline.getPoints().addAll(getLineCoordinates((raySegment.entryPoint() + 4) % 6, centerX, centerY));
+            polyline.getPoints().addAll(centerX, centerY);
+            //if the ray has not been absorbed
+            if(raySegment.exitPoint() != -1) {
+                polyline.getPoints().addAll(getLineCoordinates((raySegment.exitPoint() + 4) % 6, centerX, centerY));
+            }
 
-    private void drawRayMarkers(double centerX, double centerY) {
-        // Create a hexagon with a smaller size to represent the ray marker
-       // weirdBoard = true;
-        double markerHexSize = HEX_SIZE * 0.7;
+            //style polyline
+            polyline.setStrokeWidth(2);
+            polyline.setStroke(Color.GRAY);
+            polyline.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
-        // Draw a hexagon at the specified location
-        Polygon hexagon = new Polygon();
-        for (int i = 0; i < 6; i++) {
-            double angleRad = Math.toRadians(60 * i - 30);
-            double x = centerX + markerHexSize * Math.cos(angleRad);
-            double y = centerY + markerHexSize * Math.sin(angleRad);
-            hexagon.getPoints().addAll(x, y);
+            getChildren().add(polyline);
         }
-
-        // Fill the hexagon with gray color
-        hexagon.setFill(Color.GRAY);
-
-        // Add the hexagon to the pane
-        getChildren().add(hexagon);
     }
 
+    private ArrayList<Double> getLineCoordinates(int i, double centerX, double centerY) {
+        ArrayList<Double> coordinates = new ArrayList<>();
 
+        double angleRad1 = Math.toRadians(60 * i - 30);
+        double angleRad2 = Math.toRadians(60 * ((i+1) % 6) - 30);
+        coordinates.add((centerX + HEX_SIZE * Math.cos(angleRad1) + centerX + HEX_SIZE * Math.cos(angleRad2)) / 2);
+        coordinates.add((centerY + HEX_SIZE * Math.sin(angleRad1) + centerY + HEX_SIZE * Math.sin(angleRad2)) / 2);
 
-    private void drawHexagon(double centerX, double centerY, boolean hasAtom) {
+        return coordinates;
+    }
+
+    private void drawHexagon(double centerX, double centerY) {
         // Create a filled hexagon
-        Polygon filledHexagon = new Polygon();
-        for (int i = 0; i < 6; i++) {
-            double angleRad = Math.toRadians(60 * i - 30);
-            double x = centerX + HEX_SIZE * Math.cos(angleRad);
-            double y = centerY + HEX_SIZE * Math.sin(angleRad);
-            filledHexagon.getPoints().addAll(x, y);
-        }
-        filledHexagon.setFill(HEX_COLOR);
+        Polygon filledHexagon = createFilledHexagon(centerX, centerY);
         getChildren().add(filledHexagon);
 
         // Create a hexagon outline
-        Polygon outlineHexagon = new Polygon();
+        Polygon outlineHexagon = createOutlineHexagon(centerX, centerY);
+        getChildren().add(outlineHexagon);
+    }
+
+    private Polygon createFilledHexagon(double centerX, double centerY) {
+        Polygon filledHexagon = createHexagon(centerX, centerY);
+        filledHexagon.setFill(HEX_COLOR);
+        return filledHexagon;
+    }
+
+    private Polygon createOutlineHexagon(double centerX, double centerY) {
+        Polygon outlineHexagon = createHexagon(centerX, centerY);
+        outlineHexagon.setStroke(Color.DARKGRAY); // Set outline color
+        outlineHexagon.setFill(Color.TRANSPARENT); // Make sure it's not filled
+        outlineHexagon.setStrokeWidth(2); // Set outline width
+        return outlineHexagon;
+    }
+
+    private Polygon createHexagon(double centerX, double centerY) {
+        Polygon hexagon = new Polygon();
         for (int i = 0; i < 6; i++) {
             double angleRad = Math.toRadians(60 * i - 30);
             double x = centerX + HEX_SIZE * Math.cos(angleRad);
             double y = centerY + HEX_SIZE * Math.sin(angleRad);
-            outlineHexagon.getPoints().addAll(x, y);
+            hexagon.getPoints().addAll(x, y);
         }
-        outlineHexagon.setStroke(Color.DARKGRAY); // Set outline color
-        outlineHexagon.setFill(Color.TRANSPARENT); // Make sure it's not filled
-        outlineHexagon.setStrokeWidth(2); // Set outline width
-        getChildren().add(outlineHexagon);
+        return hexagon;
     }
 
     private void drawAtom(double centerX, double centerY) {
@@ -170,4 +181,49 @@ public class HexagonalBoardUI extends Pane {
         // Add the circle to the pane
         getChildren().add(atomInfluenceCircle);
     }
+
+    private void drawNumberLabels(double centerX, double centerY, Cell cell) {
+
+        if(cell.getCol() == 0) {
+            //left label
+            addNewLabel(cell.getRow() < 4 ? centerX - 1.25 * HEX_SIZE : centerX - 1.4 * HEX_SIZE,
+                    centerY + HEX_SIZE / 8, String.valueOf(cell.getRow() * 2 + 2));
+            if(cell.getRow() <= 4) {
+                //upper left label
+                addNewLabel(centerX - 0.65 * HEX_SIZE, centerY - 0.85 * HEX_SIZE, String.valueOf(cell.getRow()*2+1));
+            }
+        }
+
+        if(cell.getRow() == 0 && cell.getCol() > 0) {
+            //upper left label
+            addNewLabel(centerX - 0.75 * HEX_SIZE, centerY - 0.85 * HEX_SIZE, String.valueOf(55 - cell.getCol()*2));
+        }
+        if((cell.getCol() == 0 && cell.getRow() >= 4) || cell.getRow() == Board.BOARD_SIZE-1) {
+            //lower left label
+            addNewLabel(centerX - 0.85 * HEX_SIZE, centerY + 1.1 * HEX_SIZE, String.valueOf((cell.getRow()+ cell.getCol())*2+3));
+
+        }
+        if(cell.getRow() == Board.BOARD_SIZE-1 || (cell.getRow() >= 4 && cell.getCol() == 12 - cell.getRow())) {
+            //lower right label
+            addNewLabel(centerX + 0.4 * HEX_SIZE, centerY + 1.1 * HEX_SIZE, String.valueOf(cell.getCol()*2 + 20));
+        }
+        if(cell.getCol() == 12 - cell.getRow() || cell.getCol() == 4 + cell.getRow()) {
+            //right label
+            addNewLabel(centerX + HEX_SIZE, centerY + HEX_SIZE / 8, String.valueOf(45 - cell.getRow()*2));
+        }
+        if(cell.getRow() == 0 || cell.getCol() == 4 + cell.getRow()) {
+            //upper right label
+            addNewLabel(centerX + 0.45 * HEX_SIZE, centerY - 0.85 * HEX_SIZE, String.valueOf(54 - cell.getCol()*2));
+        }
+
+    }
+
+    private void addNewLabel(double x, double y, String text) {
+        Text label = new Text(x, y, text);
+        label.setStroke(Color.WHITE);
+        getChildren().add(label);
+    }
 }
+
+
+

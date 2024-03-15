@@ -1,6 +1,4 @@
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -86,20 +84,6 @@ public class Board {
             }
 
 
-        }
-    }
-
-    // Method to get the size of the board
-    public int getSize() {
-        return BOARD_SIZE;
-    }
-
-    // Method to get the size of a specific row
-    public int getSize(int rowIndex) {
-        if (rowIndex >= 0 && rowIndex < BOARD_SIZE) {
-            return cells[rowIndex].length;
-        } else {
-            return 0;
         }
     }
 
