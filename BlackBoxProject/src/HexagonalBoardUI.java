@@ -201,7 +201,7 @@ public class HexagonalBoardUI extends Pane {
     ////////
     private void drawAtomCircleOfInfluence(double centerX, double centerY) {
         // Define the radius of the circle of influence
-        double influenceRadius = HEX_SIZE * 1.5; // Adjust the multiplier as needed for the desired size
+        double influenceRadius = HEX_SIZE * 1.7; // Adjust the multiplier as needed for the desired size
 
         // Create a transparent circle representing the influence of the atom
         Circle atomInfluenceCircle = new Circle(centerX, centerY, influenceRadius);

@@ -1,16 +1,13 @@
 public class Ray {      //contains only static methods for ray processing
 
-    /*
-        Static method which processes a ray, calculating its output point from the board based on its input point
-     and the atoms encountered
-
-     Arguments: - the 2D array of cells
-                - the input point chosen by the player for this ray
-
-     Returns:   - the number of the output point for rays that exit the board or -1 for absorbed rays
-
-     This method modifies the internal state of the board, as it saves information about the ray trajectory
-     inside the board's cells
+    /**
+     *  Static method which processes a ray, calculating its output point from the board based on its input point
+     *  and the atoms encountered. This method modifies the internal state of the board, as it saves information about
+     *  the ray trajectory inside the board's cells.
+     *
+     * @param board the Board containing the 2D array of cells
+     * @param inputPoint the input point chosen by the player for this ray
+     * @return the number of the output point for rays that exit the board or -1 for absorbed rays
      */
     public static int process(Board board, int inputPoint) {
 
@@ -38,30 +35,7 @@ public class Ray {      //contains only static methods for ray processing
 
         while(true) {
 
-            //get the 3 neighbours opposite to the entry point in clockwise direction
-            Cell neighbour1 = cell.getNeighbours()[(entryPoint + 2) % 6];
-            Cell neighbour2 = cell.getNeighbours()[(entryPoint + 3) % 6];
-            Cell neighbour3 = cell.getNeighbours()[(entryPoint + 4) % 6];
-
-            boolean atomAtNeighbour1 =  neighbour1 != null && neighbour1.hasAtom();
-            boolean atomAtNeighbour2 =  neighbour2 != null && neighbour2.hasAtom();
-            boolean atomAtNeighbour3 =  neighbour3 != null && neighbour3.hasAtom();
-
-            //ray is absorbed
-            if(cell.hasAtom()) {
-                exitPoint = -1;
-            }
-
-            //no atom encountered case or ray is absorbed on the next iteration
-            else if( !atomAtNeighbour1 && !atomAtNeighbour3) {
-                exitPoint = (entryPoint + 3) % 6;
-            }
-
-            else {
-                //...OTHER CASES (later)
-                exitPoint = 0;  //dummy value to have exitPoint initialized to something, will be replaced by the other cases
-            }
-
+            exitPoint = computeExitPoint(cell, entryPoint);
 
             cell.addRaySegment(entryPoint, exitPoint);      //add information about the ray traversing this cell to this cell's raySegments ArrayList to display the ray later
 
@@ -80,6 +54,53 @@ public class Ray {      //contains only static methods for ray processing
         }
 
         return cellToOutputPoint(cell, exitPoint);
+    }
+
+    // Computes the exit point of a ray from a cell based on the entry point to that cell and whether the
+    // neighbouring cells have atoms or not; returns the exit point (or -1 for absorbed rays)
+    private static int computeExitPoint(Cell cell, int entryPoint) {
+        //get the 3 neighbours opposite to the entry point in clockwise direction
+        Cell neighbour1 = cell.getNeighbours()[(entryPoint + 2) % 6];
+        Cell neighbour2 = cell.getNeighbours()[(entryPoint + 3) % 6];
+        Cell neighbour3 = cell.getNeighbours()[(entryPoint + 4) % 6];
+
+        boolean atomAtNeighbour1 =  neighbour1 != null && neighbour1.hasAtom();
+        boolean atomAtNeighbour2 =  neighbour2 != null && neighbour2.hasAtom();
+        boolean atomAtNeighbour3 =  neighbour3 != null && neighbour3.hasAtom();
+
+        //ray is absorbed
+        if(cell.hasAtom()) {
+            return -1;
+        }
+
+        //no atom encountered case or ray is absorbed on the next iteration
+        else if( !atomAtNeighbour1 && !atomAtNeighbour3) {
+            return (entryPoint + 3) % 6;
+        }
+
+        //ray is reflected
+        else if( atomAtNeighbour1 && atomAtNeighbour3) {
+            return entryPoint;
+        }
+
+        //60 degrees and 120 degrees deflection cases
+        //deflection to the left
+        else if( atomAtNeighbour3 ) {
+            if(atomAtNeighbour2) {  //120 degrees
+                return (entryPoint + 1) % 6;
+            } else {                //60 degrees
+                return (entryPoint + 2) % 6;
+            }
+        }
+
+        //deflection to the right ( atomAtNeighbour1 )
+        else {
+            if(atomAtNeighbour2) {  //120 degrees
+                return (entryPoint + 5) % 6;
+            } else {                //60 degrees
+                return (entryPoint + 4) % 6;
+            }
+        }
     }
 
     //Figures out the starting cell associated with the input point number

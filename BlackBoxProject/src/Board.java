@@ -22,12 +22,7 @@ public class Board {
         for(int i=0; i<BOARD_SIZE; i++) {
 
             //calculate the length of the current row
-            int rowLength;
-            if(i <= 4) {
-                rowLength = 5+i;
-            } else {
-                rowLength = 13-i;
-            }
+            int rowLength = computeRowLength(i);
 
             cells[i] = new Cell[rowLength];
 
@@ -38,41 +33,50 @@ public class Board {
                 cells[i][j].setCol(j);
 
                 //setting up neighbours
-
-                //UPPER-LEFT & LOWER-RIGHT neighbours
-                if(i>0 && i<=4 && j>0) {    //upper-half of the board
-                    cells[i][j].setNeighbour(0, cells[i-1][j-1]);
-                    cells[i-1][j-1].setNeighbour(3, cells[i][j]);
-                } else if(i>4) {    //lower-half of the board
-                    cells[i][j].setNeighbour(0, cells[i-1][j]);
-                    cells[i-1][j].setNeighbour(3, cells[i][j]);
-                }
-                //in the rest of the cases(left and upper edges of the upper half), the cells don't have upper-left neighbours (they remain set to null)
-                //also, the right and lower edges of the lower half will not have lower-right neighbours (they remain set to null)
-
-                //UPPER-RIGHT & LOWER-LEFT neighbours
-                if(i>0 && i<=4 && j<rowLength-1) {  //upper-half of the board
-                    cells[i][j].setNeighbour(1, cells[i-1][j]);
-                    cells[i-1][j].setNeighbour(4, cells[i][j]);
-                } else if(i>4) {    //lower-half of the board
-                    cells[i][j].setNeighbour(1, cells[i-1][j+1]);
-                    cells[i-1][j+1].setNeighbour(4, cells[i][j]);
-                }
-                //in the rest of the cases(right and upper edges of the upper half), the cells don't have upper-right neighbours (they remain set to null)
-                //also, the left and lower edges of the lower half will not have lower-left neighbours (they remain set to null)
-
-                //LEFT & RIGHT neighbours
-                if(j>0) {
-                    cells[i][j].setNeighbour(5, cells[i][j-1]);
-                    cells[i][j-1].setNeighbour(2, cells[i][j]);
-                }
-                //in the rest of the cases(left edge of the board), the cells don't have left neighbours (they remain set to null)
-                //also, the right edge of the board will not have right neighbours (they remain set to null)
-
+                setUpNeighbours(i, j);
             }
-
-
         }
+    }
+
+    private int computeRowLength(int i) {
+        if(i <= 4) {
+            return 5+i;
+        } else {
+            return 13-i;
+        }
+    }
+
+    //sets up the neighbours of the cell at row i and column j
+    private void setUpNeighbours(int i, int j) {
+        //UPPER-LEFT & LOWER-RIGHT neighbours
+        if(i>0 && i<=4 && j>0) {    //upper-half of the board
+            cells[i][j].setNeighbour(0, cells[i-1][j-1]);
+            cells[i-1][j-1].setNeighbour(3, cells[i][j]);
+        } else if(i>4) {    //lower-half of the board
+            cells[i][j].setNeighbour(0, cells[i-1][j]);
+            cells[i-1][j].setNeighbour(3, cells[i][j]);
+        }
+        //in the rest of the cases(left and upper edges of the upper half), the cells don't have upper-left neighbours (they remain set to null)
+        //also, the right and lower edges of the lower half will not have lower-right neighbours (they remain set to null)
+
+        //UPPER-RIGHT & LOWER-LEFT neighbours
+        if(i>0 && i<=4 && j<computeRowLength(i)-1) {  //upper-half of the board
+            cells[i][j].setNeighbour(1, cells[i-1][j]);
+            cells[i-1][j].setNeighbour(4, cells[i][j]);
+        } else if(i>4) {    //lower-half of the board
+            cells[i][j].setNeighbour(1, cells[i-1][j+1]);
+            cells[i-1][j+1].setNeighbour(4, cells[i][j]);
+        }
+        //in the rest of the cases(right and upper edges of the upper half), the cells don't have upper-right neighbours (they remain set to null)
+        //also, the left and lower edges of the lower half will not have lower-left neighbours (they remain set to null)
+
+        //LEFT & RIGHT neighbours
+        if(j>0) {
+            cells[i][j].setNeighbour(5, cells[i][j-1]);
+            cells[i][j-1].setNeighbour(2, cells[i][j]);
+        }
+        //in the rest of the cases(left edge of the board), the cells don't have left neighbours (they remain set to null)
+        //also, the right edge of the board will not have right neighbours (they remain set to null)
     }
 
     /**

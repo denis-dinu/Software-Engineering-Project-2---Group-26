@@ -29,6 +29,37 @@ public class RayTest {
     }
 
     @Test
+    void reflectionOutputPoint() {
+        Board board = new Board();
+        board.setSeed(10);
+        board.generateAtoms(6);
+
+        assertEquals(5, Ray.process(board, 5));
+        assertEquals(24, Ray.process(board, 24));
+    }
+
+    @Test
+    void deviation60OutputPoint() {
+        Board board = new Board();
+        board.setSeed(7);
+        board.generateAtoms(6);
+
+        assertEquals(10, Ray.process(board, 34));
+        assertEquals(51, Ray.process(board, 12));
+        assertEquals(7, Ray.process(board, 17));
+    }
+
+    @Test
+    void deviation120OutputPoint() {
+        Board board = new Board();
+        board.setSeed(5);
+        board.generateAtoms(6);
+
+        assertEquals(5, Ray.process(board, 44));
+        assertEquals(1, Ray.process(board, 10));
+    }
+
+    @Test
     void testRaySegments() {
         Board board = new Board();
         board.setSeed(1);
