@@ -3,8 +3,6 @@ import java.util.ArrayList;
 public class Cell {
 
     private boolean atom;
-    private double yPosition;   //used for the GUI
-
 
     /*
         An array that stores references to the cells which are neighbours of this cell (according to the
@@ -20,6 +18,8 @@ public class Cell {
      */
     private final Cell[] neighbours;
     private int row, col;       //store the row and column number of this cell on the board
+    private double centerX, centerY;    //store the UI coordinates of the center of this cell for easy access
+                                        //only initialised once a HexagonalBoardUI is constructed from a board with this cell
 
     /*  An ArrayList that stores information about the rays passing through this cell - each ray passing through this cell
         corresponds to a ray segment in this ArrayList - each ray segment gives the entry point of the ray to this cell
@@ -34,8 +34,6 @@ public class Cell {
         this.raySegments = new ArrayList<>();
 
     }
-
-
 
 
     public void setNeighbour(int position, Cell newNeighbour) {
@@ -61,14 +59,6 @@ public class Cell {
         return neighbours;
     }
 
-    public double getY() {
-        return yPosition;
-    }
-
-    public void setY(double yPosition) {
-        this.yPosition = yPosition;
-    }
-
     public int getRow() {
         return row;
     }
@@ -83,6 +73,22 @@ public class Cell {
 
     public void setCol(int col) {
         this.col = col;
+    }
+
+    public double getCenterX() {
+        return centerX;
+    }
+
+    public void setCenterX(double centerX) {
+        this.centerX = centerX;
+    }
+
+    public double getCenterY() {
+        return centerY;
+    }
+
+    public void setCenterY(double centerY) {
+        this.centerY = centerY;
     }
 
     public ArrayList<RaySegment> getRaySegments() {

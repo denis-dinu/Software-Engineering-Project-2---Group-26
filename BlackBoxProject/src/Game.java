@@ -32,8 +32,10 @@ public class Game {
 
     private int validateExperimenterInput(String input) {
         int inputCoordinate = Integer.parseInt(input);
-        if(board.getRayMarkers().containsKey(inputCoordinate) || board.getRayMarkers().containsValue(inputCoordinate)) {
-            throw new InputPointTestedException("Input point has already been tested, please enter another input point");
+        for(RayMarker rm : board.getRayMarkers()) {
+            if(rm.inputPoint() == inputCoordinate || rm.outputPoint() == inputCoordinate) {
+                throw new InputPointTestedException("Input point has already been tested, please enter another input point");
+            }
         }
         return inputCoordinate;
     }

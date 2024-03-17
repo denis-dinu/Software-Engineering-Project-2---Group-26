@@ -1,30 +1,23 @@
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Random;
+import javafx.scene.paint.Color;
 
 public class Board {
 
     // a 2D array that stores the cells of the board
     private final Cell[][] cells;
 
-    /*
-        A hashmap that stores the ray markers placed on the board in (key, value) pairs:
-
-        - the key represents the input point chosen by the experimenter to send a ray into the board
-        - the value represents the point determined by the algorithm to be the output point of the ray
-          (for example key=value for reflected rays, value=null for absorbed rays)
-
-     */
-    private final HashMap<Integer, Integer> rayMarkers;
+    // an ArrayList that stores the ray markers placed on the board (see class RayMarker)
+    private final ArrayList<RayMarker> rayMarkers;
 
     final static int BOARD_SIZE = 9;
-    private final static double ROW_HEIGHT = 50.0;
     private Random random = new Random();
 
     //Board constructor creates the board and each of its cells and also sets up the neighbours of each cell
     public Board() {
         cells = new Cell[BOARD_SIZE][];
-        rayMarkers = new HashMap<>();
+        rayMarkers = new ArrayList<>();
 
         for(int i=0; i<BOARD_SIZE; i++) {
 
@@ -35,8 +28,6 @@ public class Board {
             } else {
                 rowLength = 13-i;
             }
-
-            double yOffset = (BOARD_SIZE - rowLength) * ROW_HEIGHT / 2.0;
 
             cells[i] = new Cell[rowLength];
 
@@ -78,9 +69,6 @@ public class Board {
                 //in the rest of the cases(left edge of the board), the cells don't have left neighbours (they remain set to null)
                 //also, the right edge of the board will not have right neighbours (they remain set to null)
 
-                // Set vertical position
-                double yPosition = yOffset + j * ROW_HEIGHT;
-                cells[i][j].setY(yPosition);
             }
 
 
@@ -135,12 +123,24 @@ public class Board {
         return cells;
     }
 
-    public HashMap<Integer, Integer> getRayMarkers() {
+    public ArrayList<RayMarker> getRayMarkers() {
         return rayMarkers;
     }
 
     public void addRayMarker(Integer inputPoint, Integer outputPoint) {
-        rayMarkers.put(inputPoint, outputPoint);
+        Color color;
+        if(outputPoint == -1) {     //ray is absorbed
+            color = Color.BLACK;
+        } else if(inputPoint.equals(outputPoint)) {     //ray is reflected
+            color = Color.WHITE;
+        } else {
+            //ensure chosen color is not black or white for other rays
+            do {
+                color = Color.color(Math.random(), Math.random(), Math.random());
+            } while(color.equals(Color.BLACK) || color.equals(Color.WHITE));
+        }
+
+        rayMarkers.add(new RayMarker(inputPoint, outputPoint, color));
     }
 
     //useful for testing the generateAtoms methods
