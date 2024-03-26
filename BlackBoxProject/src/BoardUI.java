@@ -1,3 +1,4 @@
+
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -5,11 +6,10 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Text;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HexagonalBoardUI extends Pane {
+public class BoardUI extends Pane {
     private static final double HEX_SIZE = 35.0;
     private static final double HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
     private static final double HEX_HEIGHT = 2 * HEX_SIZE;
@@ -28,7 +28,7 @@ public class HexagonalBoardUI extends Pane {
     // List to store the coordinates of cells with atoms
     private final ArrayList<double[]> atomCoordinates = new ArrayList<>();
 
-    public HexagonalBoardUI(Board board) {
+    public BoardUI(Board board) {
         this.board = board;
         initializeCellCoordinates(board.getCells());
         initializeNumberLabels(board.getCells());
@@ -157,17 +157,31 @@ public class HexagonalBoardUI extends Pane {
         return coordinates;
     }
 
-    private void drawHexagon(double centerX, double centerY) {
+   /* private void drawHexagon(double centerX, double centerY) {
         // Create a filled hexagon
         Polygon filledHexagon = createFilledHexagon(centerX, centerY);
         getChildren().add(filledHexagon);
-
-        // Create a hexagon outline
         Polygon outlineHexagon = createOutlineHexagon(centerX, centerY);
         getChildren().add(outlineHexagon);
+    }*/
+
+    private void drawHexagon(double centerX, double centerY) {
+        HexagonButton hexagonButton = new HexagonButton(centerX, centerY, HEX_SIZE);
+
+        hexagonButton.setFill(HEX_COLOR); // Set fill color
+        hexagonButton.setStroke(Color.DARKGRAY); // Set outline color
+        hexagonButton.setStrokeWidth(2); // Set outline width
+
+        hexagonButton.setOnClickAction(() -> {
+            // Perform actions when the hexagon button is clicked
+            System.out.println("Hexagon button clicked!");
+        });
+
+        getChildren().add(hexagonButton);
     }
 
-    private Polygon createFilledHexagon(double centerX, double centerY) {
+
+   /* private Polygon createFilledHexagon(double centerX, double centerY) {
         Polygon filledHexagon = createHexagon(centerX, centerY);
         filledHexagon.setFill(HEX_COLOR);
         return filledHexagon;
@@ -181,6 +195,7 @@ public class HexagonalBoardUI extends Pane {
         return outlineHexagon;
     }
 
+
     private Polygon createHexagon(double centerX, double centerY) {
         Polygon hexagon = new Polygon();
         for (int i = 0; i < 6; i++) {
@@ -190,7 +205,11 @@ public class HexagonalBoardUI extends Pane {
             hexagon.getPoints().addAll(x, y);
         }
         return hexagon;
-    }
+    }*/
+
+
+
+
 
     private void drawAtom(double centerX, double centerY) {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
@@ -365,4 +384,27 @@ public class HexagonalBoardUI extends Pane {
 }
 
 
+class HexagonButton extends Polygon {
+    private Runnable onClickAction;
 
+    public HexagonButton(double centerX, double centerY, double size) {
+        super(
+                centerX + size * Math.cos(Math.toRadians(30)), centerY + size * Math.sin(Math.toRadians(30)),
+                centerX + size * Math.cos(Math.toRadians(90)), centerY + size * Math.sin(Math.toRadians(90)),
+                centerX + size * Math.cos(Math.toRadians(150)), centerY + size * Math.sin(Math.toRadians(150)),
+                centerX + size * Math.cos(Math.toRadians(210)), centerY + size * Math.sin(Math.toRadians(210)),
+                centerX + size * Math.cos(Math.toRadians(270)), centerY + size * Math.sin(Math.toRadians(270)),
+                centerX + size * Math.cos(Math.toRadians(330)), centerY + size * Math.sin(Math.toRadians(330))
+        );
+
+        setOnMouseClicked(event -> {
+            if (onClickAction != null) {
+                onClickAction.run();
+            }
+        });
+    }
+
+    public void setOnClickAction(Runnable onClickAction) {
+        this.onClickAction = onClickAction;
+    }
+}

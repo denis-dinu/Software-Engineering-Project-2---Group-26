@@ -1,7 +1,7 @@
 public class Game {
 
     private final Board board;
-    private final HexagonalBoardUI boardUI;
+    private final BoardUI boardUI;
 
     public Game() {
         //create a new board associated with this game and generate random atom locations for it
@@ -9,7 +9,7 @@ public class Game {
         board.generateAtoms(6);
 
         //create a boardUI associated with this game's board
-        boardUI = new HexagonalBoardUI(board);
+        boardUI = new BoardUI(board);
     }
 
     /**
@@ -40,7 +40,7 @@ public class Game {
         return inputCoordinate;
     }
 
-    public HexagonalBoardUI getBoardUI() {
+    public BoardUI getBoardUI() {
         return boardUI;
     }
 }

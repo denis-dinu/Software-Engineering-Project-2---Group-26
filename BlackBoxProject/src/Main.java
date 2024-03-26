@@ -45,7 +45,7 @@ public class Main extends Application {
     //--- Methods to create the game scene components ---
 
     // Create an HBox to center the board horizontally and add padding to the left
-    private Region createBoardContainer(HexagonalBoardUI boardUI) {
+    private Region createBoardContainer(BoardUI boardUI) {
         HBox boardContainer = new HBox();
         boardContainer.setAlignment(Pos.CENTER);
         boardContainer.setPadding(new Insets(0, 0, 0, 1300.0 / 2.0)); // Add padding to the left side
@@ -53,7 +53,7 @@ public class Main extends Application {
         return boardContainer;
     }
 
-    private Region createButtonBox(Stage primaryStage, HexagonalBoardUI boardUI) {
+    private Region createButtonBox(Stage primaryStage, BoardUI boardUI) {
         HBox buttonBox = new HBox(20);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(createBackButton(primaryStage), createToggleAtomsButton(boardUI));
@@ -74,7 +74,7 @@ public class Main extends Application {
         return backButton;
     }
 
-    private static Button createToggleAtomsButton(HexagonalBoardUI boardUI) {
+    private static Button createToggleAtomsButton(BoardUI boardUI) {
         Button toggleAtomsButton = new Button("Toggle Atoms Visibility");
         toggleAtomsButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;"); // Set button font size, family, and round corners
         toggleAtomsButton.setMinWidth(200); // Set the minimum width for the button
