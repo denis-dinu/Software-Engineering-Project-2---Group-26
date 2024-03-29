@@ -8,6 +8,7 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class BoardUI extends Pane {
     private static final double HEX_SIZE = 35.0;
@@ -18,6 +19,16 @@ public class BoardUI extends Pane {
     private static final double verticalGap = 1; // Adjust vertical gap
 
     private final Board board;
+
+    // Getter method for retrieving the atom coordinates
+    public ArrayList<double[]> getAtomCoordinates() {
+        return atomCoordinates;
+    }
+
+    // Getter method for retrieving the player marker coordinates
+    public ArrayList<double[]> getPlayerMarkerCoordinates() {
+        return playerMarkercoordinates;
+    }
     private boolean atomsVisible = true; // Track the visibility state of atoms
 
     /*
@@ -27,6 +38,7 @@ public class BoardUI extends Pane {
     private final HashMap<Integer, Text> numberLabels = new HashMap<>();
     // List to store the coordinates of cells with atoms
     private final ArrayList<double[]> atomCoordinates = new ArrayList<>();
+    private final ArrayList<double[]> playerMarkercoordinates = new ArrayList<>();
 
     public BoardUI(Board board) {
         this.board = board;
@@ -105,15 +117,17 @@ public class BoardUI extends Pane {
                 drawHexagon(cell.getCenterX(), cell.getCenterY());
 
                 ArrayList<RaySegment> raySegments = cell.getRaySegments();
-                if (!raySegments.isEmpty() && atomsVisible) {
-                    //draw the ray segments passing through this cell, if any
+                if (!raySegments.isEmpty()) {
+                    // Draw the ray segments passing through this cell, if any
                     drawRaySegments(cell.getCenterX(), cell.getCenterY(), raySegments);
                 }
             }
 
         }
 
-        // Draw atoms and their circles of influence after drawing all cells
+
+
+        // Draw atoms and their circles of influence after drawing all cells if atoms are visible
         if (atomsVisible) {
             for (double[] coordinates : atomCoordinates) {
                 drawAtom(coordinates[0], coordinates[1]);
@@ -121,9 +135,17 @@ public class BoardUI extends Pane {
             }
         }
 
+
+        for(double[] coordinates : playerMarkercoordinates )
+        {
+            drawPlayerMarker(coordinates[0],coordinates[1]);
+        }
+
+
         drawRayMarkers();
         drawNumberLabels();
     }
+
 
     private void drawRaySegments(double centerX, double centerY, ArrayList<RaySegment> raySegments) {
         for(RaySegment raySegment: raySegments) {
@@ -174,11 +196,51 @@ public class BoardUI extends Pane {
 
         hexagonButton.setOnClickAction(() -> {
             // Perform actions when the hexagon button is clicked
-            System.out.println("Hexagon button clicked!");
+            if (hasPlayerMarker(centerX, centerY)) {
+                removePlayerMarker(centerX, centerY);
+            } else {
+                addPlayerMarker(centerX, centerY);
+            }
         });
+
 
         getChildren().add(hexagonButton);
     }
+
+    private boolean hasPlayerMarker(double centerX, double centerY) {
+        for (double[] coordinates : playerMarkercoordinates) {
+            if (coordinates[0] == centerX && coordinates[1] == centerY) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addPlayerMarker(double centerX, double centerY) {
+        if (playerMarkercoordinates.size() < 6) { // Check if the number of markers is less than 6
+            playerMarkercoordinates.add(new double[]{centerX, centerY});
+            drawPlayerMarker(centerX, centerY);
+        } else {
+            // Display a message indicating that the maximum limit of markers has been reached
+            System.out.println("Maximum limit of markers reached. You cannot add more markers.");
+        }
+    }
+
+    private void removePlayerMarker(double centerX, double centerY) {
+        // Iterate through playerMarkercoordinates list and remove the marker with matching coordinates
+        Iterator<double[]> iterator = playerMarkercoordinates.iterator();
+        while (iterator.hasNext()) {
+            double[] coordinates = iterator.next();
+            if (coordinates[0] == centerX && coordinates[1] == centerY) {
+                iterator.remove();
+                break;
+            }
+        }
+        // Redraw the board to update the UI
+        drawBoard();
+    }
+
+
 
 
    /* private Polygon createFilledHexagon(double centerX, double centerY) {
@@ -216,6 +278,13 @@ public class BoardUI extends Pane {
         atomCircle.setFill(Color.RED); // Atom color
         getChildren().add(atomCircle);
     }
+
+    private void drawPlayerMarker(double centerX, double centerY) {
+        Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
+        atomCircle.setFill(Color.GREY); // Atom color
+        getChildren().add(atomCircle);
+    }
+
 
     ////////
     private void drawAtomCircleOfInfluence(double centerX, double centerY) {
@@ -343,6 +412,8 @@ public class BoardUI extends Pane {
         marker.setFill(color); // marker color
         getChildren().add(marker);
     }
+
+
 
     //utility methods for computing layout coordinates of labels/ray markers and making the code more readable
     private double getLeftX(double centerX, Cell cell) {
