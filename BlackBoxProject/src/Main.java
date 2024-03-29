@@ -7,6 +7,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
 
 public class Main extends Application {
 
@@ -29,8 +32,13 @@ public class Main extends Application {
         // Create game scene buttons and an HBox to contain them
         Region buttonBox = createButtonBox(primaryStage, boardUI, game);
 
+        // Create the input field and output area and an HBox to contain them
+        Region consoleBox = createConsoleBox(game);
+
         // Create a layout pane for the game components
-        Region gamePane = createGamePane(boardContainer, buttonBox);
+        Region gamePane = createGamePane(boardContainer, buttonBox, consoleBox);
+
+
 
         return new Scene(gamePane, 1300, 800);
     }
@@ -38,6 +46,54 @@ public class Main extends Application {
     //--- Methods to create the game scene components ---
 
     // Create an HBox to center the board horizontally and add padding to the left
+
+    private Region createConsoleBox(Game game) {
+        HBox consoleBox = new HBox(10); // Adjust spacing between components as needed
+        consoleBox.setAlignment(Pos.CENTER);
+
+        // Create the console components
+        TextArea outputArea = createOutputArea();
+        TextField inputField = createInputField(game, outputArea);
+
+        consoleBox.getChildren().addAll(inputField, outputArea);
+        return consoleBox;
+    }
+
+    private TextArea createOutputArea() {
+        TextArea outputArea = new TextArea();
+        outputArea.setEditable(false);
+        outputArea.setStyle("-fx-font-size: 14;");
+        outputArea.setPrefWidth(200); // Set a fixed width for the output area
+        outputArea.setPrefHeight(100); // Set a fixed height for the output area
+        outputArea.setWrapText(true);
+        return outputArea;
+    }
+
+    private TextField createInputField(Game game, TextArea outputArea) {
+        TextField inputField = new TextField();
+        inputField.setPromptText("Enter ray input point");
+        inputField.setStyle("-fx-font-size: 14;");
+        inputField.setPrefWidth(200); // Set a fixed width for the input field
+
+
+        // Set the action for the input field
+        inputField.setOnAction(event -> {
+            try {
+                int outputCoordinate = game.sendExperimenterRay(inputField.getText());
+
+                if (outputCoordinate == -1) outputArea.setText("Ray absorbed");
+                else outputArea.setText("Output point: " + outputCoordinate);
+            }
+            catch (IllegalArgumentException e) {
+                outputArea.setText("Invalid input point, please enter a valid input point");
+            } catch (InputPointTestedException e) {
+                outputArea.setText(e.getMessage());
+            }
+        });
+
+        return inputField;
+    }
+
     private Region createBoardContainer(BoardUI boardUI) {
         HBox boardContainer = new HBox();
         boardContainer.setAlignment(Pos.CENTER);
@@ -57,6 +113,8 @@ public class Main extends Application {
         return buttonBox;
     }
 
+
+
     private Button createCountMatchesButton(Stage primaryStage, Game game) {
         Button countMatchesButton = new Button("Count Matches");
         countMatchesButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
@@ -72,13 +130,14 @@ public class Main extends Application {
         return countMatchesButton;
     }
 
-    private Region createGamePane(Region boardContainer, Region buttonBox) {
+    private Region createGamePane(Region boardContainer, Region buttonBox, Region consoleBox) {
         VBox gamePane = new VBox(10);
         gamePane.setAlignment(Pos.CENTER);
-        gamePane.getChildren().addAll(boardContainer, buttonBox);
+        gamePane.getChildren().addAll(boardContainer, buttonBox, consoleBox);
         gamePane.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return gamePane;
     }
+
 
     // Method to create the game end scene
     private Scene createGameEndScene(Stage primaryStage, int matchCount) {
@@ -95,6 +154,8 @@ public class Main extends Application {
         endScreenBox.getChildren().addAll(matchCountLabel, backToMenuButton);
         return new Scene(endScreenBox, 1300, 800);
     }
+
+
 
     private Button createBackButton(Stage primaryStage) {
         Button backButton = new Button("Back to Menu");
