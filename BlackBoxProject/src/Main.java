@@ -144,7 +144,7 @@ public class Main extends Application {
         VBox endScreenBox = new VBox(20);
         endScreenBox.setAlignment(Pos.CENTER);
         Label matchCountLabel = new Label("Number of Matches: " + matchCount);
-        matchCountLabel.setStyle("-fx-font-size: 24; -fx-font-family: Verdana;");
+        matchCountLabel.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-text-fill: white;");
         Button backToMenuButton = new Button("Back to Menu");
         backToMenuButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         backToMenuButton.setOnAction(event -> {
@@ -152,8 +152,10 @@ public class Main extends Application {
             primaryStage.setTitle("Main Menu");
         });
         endScreenBox.getChildren().addAll(matchCountLabel, backToMenuButton);
+        endScreenBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return new Scene(endScreenBox, 1300, 800);
     }
+
 
 
 
@@ -223,7 +225,7 @@ public class Main extends Application {
         VBox root = new VBox(100);
         root.setAlignment(Pos.CENTER);
         root.getChildren().addAll(playButton, exitButton);
-        root.setBackground(new Background(new BackgroundFill(Color.rgb(50, 50, 50), CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return root;
     }
 

@@ -179,14 +179,6 @@ public class BoardUI extends Pane {
         return coordinates;
     }
 
-   /* private void drawHexagon(double centerX, double centerY) {
-        // Create a filled hexagon
-        Polygon filledHexagon = createFilledHexagon(centerX, centerY);
-        getChildren().add(filledHexagon);
-        Polygon outlineHexagon = createOutlineHexagon(centerX, centerY);
-        getChildren().add(outlineHexagon);
-    }*/
-
     private void drawHexagon(double centerX, double centerY) {
         HexagonButton hexagonButton = new HexagonButton(centerX, centerY, HEX_SIZE);
 
@@ -239,38 +231,6 @@ public class BoardUI extends Pane {
         // Redraw the board to update the UI
         drawBoard();
     }
-
-
-
-
-   /* private Polygon createFilledHexagon(double centerX, double centerY) {
-        Polygon filledHexagon = createHexagon(centerX, centerY);
-        filledHexagon.setFill(HEX_COLOR);
-        return filledHexagon;
-    }
-
-    private Polygon createOutlineHexagon(double centerX, double centerY) {
-        Polygon outlineHexagon = createHexagon(centerX, centerY);
-        outlineHexagon.setStroke(Color.DARKGRAY); // Set outline color
-        outlineHexagon.setFill(Color.TRANSPARENT); // Make sure it's not filled
-        outlineHexagon.setStrokeWidth(2); // Set outline width
-        return outlineHexagon;
-    }
-
-
-    private Polygon createHexagon(double centerX, double centerY) {
-        Polygon hexagon = new Polygon();
-        for (int i = 0; i < 6; i++) {
-            double angleRad = Math.toRadians(60 * i - 30);
-            double x = centerX + HEX_SIZE * Math.cos(angleRad);
-            double y = centerY + HEX_SIZE * Math.sin(angleRad);
-            hexagon.getPoints().addAll(x, y);
-        }
-        return hexagon;
-    }*/
-
-
-
 
 
     private void drawAtom(double centerX, double centerY) {
