@@ -117,7 +117,7 @@ public class BoardUI extends Pane {
                 drawHexagon(cell.getCenterX(), cell.getCenterY());
 
                 ArrayList<RaySegment> raySegments = cell.getRaySegments();
-                if (!raySegments.isEmpty()) {
+                if (!raySegments.isEmpty() && atomsVisible) {
                     // Draw the ray segments passing through this cell, if any
                     drawRaySegments(cell.getCenterX(), cell.getCenterY(), raySegments);
                 }
@@ -362,6 +362,7 @@ public class BoardUI extends Pane {
             }
         }
     }
+
 
     //places a ray marker of the specified color at the label with the specified number
     private void placeRayMarker(int number, Color color) {
