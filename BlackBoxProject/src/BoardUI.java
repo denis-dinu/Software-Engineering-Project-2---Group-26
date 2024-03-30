@@ -214,7 +214,7 @@ public class BoardUI extends Pane {
             drawPlayerMarker(centerX, centerY);
         } else {
             // Display a message indicating that the maximum limit of markers has been reached
-            System.out.println("Maximum limit of markers reached. You cannot add more markers.");
+            System.out.println("\nMaximum limit of atom markers reached. Please replace already existing ones by removing them.");
         }
     }
 
@@ -242,6 +242,7 @@ public class BoardUI extends Pane {
     private void drawPlayerMarker(double centerX, double centerY) {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
         atomCircle.setFill(Color.GREY); // Atom color
+        atomCircle.setOnMouseClicked(event -> removePlayerMarker(centerX, centerY));
         getChildren().add(atomCircle);
     }
 

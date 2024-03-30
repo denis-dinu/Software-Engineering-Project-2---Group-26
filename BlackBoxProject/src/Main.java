@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 
 public class Main extends Application {
 
@@ -66,6 +69,9 @@ public class Main extends Application {
         outputArea.setPrefWidth(200); // Set a fixed width for the output area
         outputArea.setPrefHeight(100); // Set a fixed height for the output area
         outputArea.setWrapText(true);
+
+        System.setOut(new PrintStream(new TextAreaOutputStream(outputArea)));   //redirect standard output to the output text area
+
         return outputArea;
     }
 
@@ -81,13 +87,13 @@ public class Main extends Application {
             try {
                 int outputCoordinate = game.sendExperimenterRay(inputField.getText());
 
-                if (outputCoordinate == -1) outputArea.setText("Ray absorbed");
-                else outputArea.setText("Output point: " + outputCoordinate);
+                if (outputCoordinate == -1) outputArea.setText("Ray absorbed\n");
+                else outputArea.setText("Output point: " + outputCoordinate + "\n");
             }
             catch (IllegalArgumentException e) {
-                outputArea.setText("Invalid input point, please enter a valid input point");
+                outputArea.setText("Invalid input point, please enter a valid input point\n");
             } catch (InputPointTestedException e) {
-                outputArea.setText(e.getMessage());
+                outputArea.setText(e.getMessage() + "\n");
             }
         });
 
@@ -122,6 +128,12 @@ public class Main extends Application {
         countMatchesButton.setMinHeight(50);
 
         countMatchesButton.setOnAction(event -> {
+            //check if player has made 6 guesses
+            if(game.getBoardUI().getPlayerMarkerCoordinates().size() != 6) {
+                System.out.println("\nPlease place 6 atom markers before ending the round");
+                return;
+            }
+
             int matchCount = game.countMatches();
             primaryStage.setScene(createGameEndScene(primaryStage, matchCount));
             primaryStage.setTitle("Game End");
@@ -199,7 +211,6 @@ public class Main extends Application {
         Button playButton = new Button("Play Game");
         playButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         playButton.setMinWidth(200);
-        playButton.setMinHeight(50);
 
         playButton.setOnAction(event -> {
             Game game = new Game();
@@ -214,7 +225,6 @@ public class Main extends Application {
         Button exitButton = new Button("Exit");
         exitButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         exitButton.setMinWidth(200);
-        exitButton.setMinHeight(50);
 
         exitButton.setOnAction(event -> primaryStage.close());
 
@@ -222,7 +232,7 @@ public class Main extends Application {
     }
 
     private Region createMainMenuRoot(Button playButton, Button exitButton) {
-        VBox root = new VBox(100);
+        VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
         root.getChildren().addAll(playButton, exitButton);
         root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -231,5 +241,18 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+}
+
+class TextAreaOutputStream extends OutputStream {
+
+    private final TextArea out;
+    public TextAreaOutputStream(TextArea out) {
+        this.out = out;
+    }
+
+    @Override
+    public void write(int b) {
+        out.appendText(String.valueOf((char)b));
     }
 }

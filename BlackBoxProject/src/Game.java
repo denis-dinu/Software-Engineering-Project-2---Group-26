@@ -1,5 +1,3 @@
-import javafx.scene.paint.Color;
-
 public class Game {
 
     private final Board board;
