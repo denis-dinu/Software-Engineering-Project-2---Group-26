@@ -60,6 +60,18 @@ public class RayTest {
     }
 
     @Test
+    void edgeOfTheBoard() {
+        Board board = new Board();
+        board.setSeed(7);
+        board.generateAtoms(6);
+
+        assertEquals(48, Ray.process(board, 48));
+        assertEquals(42, Ray.process(board, 42));
+        assertEquals(41, Ray.process(board, 41));
+        assertEquals(39, Ray.process(board, 39));
+    }
+
+    @Test
     void testRaySegments() {
         Board board = new Board();
         board.setSeed(1);

@@ -141,7 +141,7 @@ public class Board {
             //ensure chosen color is not black or white for other rays
             do {
                 color = Color.color(Math.random(), Math.random(), Math.random());
-            } while(color.equals(Color.BLACK) || color.equals(Color.WHITE));
+            } while(color.getBrightness() < 0.2 || color.getBrightness() > 0.8);
         }
 
         rayMarkers.add(new RayMarker(inputPoint, outputPoint, color));

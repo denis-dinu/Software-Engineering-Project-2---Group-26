@@ -29,9 +29,10 @@ public class Ray {      //contains only static methods for ray processing
         contain atoms, or else the ray wouldn't have entered this cell.
          */
 
-        /*
-                HANDLE EDGE OF THE BOARD EDGE CASE HERE (later)
-         */
+        // in edge of the board case, the atom is reflected right away and input point = output point
+        if(isReflectedOnEdge(cell, entryPoint)) {
+            return inputPoint;
+        }
 
         while(true) {
 
@@ -170,6 +171,15 @@ public class Ray {      //contains only static methods for ray processing
         } else {                                        //upper side
             return 55 - last.getCol() * 2;
         }
+    }
+
+    // Contains logic for handling the edge of the board case - returns true if the atom is reflected
+    // right away, before even entering the board, as a result of an atom on the edge of the board, and false otherwise
+    private static boolean isReflectedOnEdge(Cell cell, int entryPoint) {
+        Cell neighbour1 = cell.getNeighbours()[(entryPoint+5) % 6];
+        Cell neighbour2 = cell.getNeighbours()[(entryPoint+1) % 6];
+
+        return (neighbour1 != null && neighbour1.hasAtom()) || (neighbour2 != null && neighbour2.hasAtom()) || cell.hasAtom();
     }
 }
 
