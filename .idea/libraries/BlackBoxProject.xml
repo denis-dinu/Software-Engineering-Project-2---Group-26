@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="BlackBoxProject">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/BlackBoxProject/out/artifacts/BlackBoxProject_jar/BlackBoxProject.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

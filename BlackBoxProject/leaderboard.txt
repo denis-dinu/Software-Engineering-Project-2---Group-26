@@ -1,0 +1,5 @@
+denis:25
+oleksii:5
+erer:10
+eeee:30
+rteret:36
