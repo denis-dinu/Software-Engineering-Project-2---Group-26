@@ -18,7 +18,7 @@ public class BoardUI extends Pane {
     private static final double horizontalGap = 1; // Adjust horizontal gap
     private static final double verticalGap = 1; // Adjust vertical gap
 
-    private final Board board;
+    final Board board;
 
     // Getter method for retrieving the atom coordinates
     public ArrayList<double[]> getAtomCoordinates() {
@@ -27,9 +27,9 @@ public class BoardUI extends Pane {
 
     // Getter method for retrieving the player marker coordinates
     public ArrayList<double[]> getPlayerMarkerCoordinates() {
-        return playerMarkercoordinates;
+        return playerMarkerCoordinates;
     }
-    private boolean atomsVisible = true; // Track the visibility state of atoms
+    private boolean atomsVisible = false; // Track the visibility state of atoms
 
     /*
         A hashmap to store the text labels showing input points on the edge of the board, with the
@@ -38,7 +38,7 @@ public class BoardUI extends Pane {
     private final HashMap<Integer, Text> numberLabels = new HashMap<>();
     // List to store the coordinates of cells with atoms
     private final ArrayList<double[]> atomCoordinates = new ArrayList<>();
-    private final ArrayList<double[]> playerMarkercoordinates = new ArrayList<>();
+    private final ArrayList<double[]> playerMarkerCoordinates = new ArrayList<>();
 
     public BoardUI(Board board) {
         this.board = board;
@@ -136,7 +136,7 @@ public class BoardUI extends Pane {
         }
 
 
-        for(double[] coordinates : playerMarkercoordinates )
+        for(double[] coordinates : playerMarkerCoordinates)
         {
             drawPlayerMarker(coordinates[0],coordinates[1]);
         }
@@ -200,7 +200,7 @@ public class BoardUI extends Pane {
     }
 
     private boolean hasPlayerMarker(double centerX, double centerY) {
-        for (double[] coordinates : playerMarkercoordinates) {
+        for (double[] coordinates : playerMarkerCoordinates) {
             if (coordinates[0] == centerX && coordinates[1] == centerY) {
                 return true;
             }
@@ -209,8 +209,8 @@ public class BoardUI extends Pane {
     }
 
     private void addPlayerMarker(double centerX, double centerY) {
-        if (playerMarkercoordinates.size() < 6) { // Check if the number of markers is less than 6
-            playerMarkercoordinates.add(new double[]{centerX, centerY});
+        if (playerMarkerCoordinates.size() < 6) { // Check if the number of markers is less than 6
+            playerMarkerCoordinates.add(new double[]{centerX, centerY});
             drawPlayerMarker(centerX, centerY);
         } else {
             // Display a message indicating that the maximum limit of markers has been reached
@@ -220,7 +220,7 @@ public class BoardUI extends Pane {
 
     private void removePlayerMarker(double centerX, double centerY) {
         // Iterate through playerMarkercoordinates list and remove the marker with matching coordinates
-        Iterator<double[]> iterator = playerMarkercoordinates.iterator();
+        Iterator<double[]> iterator = playerMarkerCoordinates.iterator();
         while (iterator.hasNext()) {
             double[] coordinates = iterator.next();
             if (coordinates[0] == centerX && coordinates[1] == centerY) {

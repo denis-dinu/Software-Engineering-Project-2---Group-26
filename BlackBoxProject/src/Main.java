@@ -10,8 +10,9 @@ import javafx.stage.Stage;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Main extends Application {
@@ -40,8 +41,6 @@ public class Main extends Application {
 
         // Create a layout pane for the game components
         Region gamePane = createGamePane(boardContainer, buttonBox, consoleBox);
-
-
 
         return new Scene(gamePane, 1300, 800);
     }
@@ -114,15 +113,15 @@ public class Main extends Application {
         buttonBox.getChildren().addAll(
                 createBackButton(primaryStage),
                 createToggleAtomsButton(boardUI),
-                createCountMatchesButton(primaryStage, game)
+                createEndRoundButton(primaryStage, game)
         );
         return buttonBox;
     }
 
 
 
-    private Button createCountMatchesButton(Stage primaryStage, Game game) {
-        Button countMatchesButton = new Button("Count Matches");
+    private Button createEndRoundButton(Stage primaryStage, Game game) {
+        Button countMatchesButton = new Button("End Round");
         countMatchesButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         countMatchesButton.setMinWidth(200);
         countMatchesButton.setMinHeight(50);
@@ -135,7 +134,8 @@ public class Main extends Application {
             }
 
             int matchCount = game.countMatches();
-            primaryStage.setScene(createGameEndScene(primaryStage, matchCount));
+            int score = game.countScore();
+            primaryStage.setScene(createEndRoundScene(primaryStage,game,matchCount, score));
             primaryStage.setTitle("Game End");
         });
 
@@ -151,22 +151,112 @@ public class Main extends Application {
     }
 
 
-    // Method to create the game end scene
-    private Scene createGameEndScene(Stage primaryStage, int matchCount) {
+    private Scene createEndRoundScene(Stage primaryStage, Game game, int matchCount, int score) {
         VBox endScreenBox = new VBox(20);
         endScreenBox.setAlignment(Pos.CENTER);
-        Label matchCountLabel = new Label("Number of Matches: " + matchCount);
-        matchCountLabel.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-text-fill: white;");
+
+        Label nameLabel = new Label("Enter your name:");
+        nameLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana; -fx-text-fill: white;");
+
+        HBox nameInputBox = new HBox(); // Container for the name input field
+        nameInputBox.setAlignment(Pos.CENTER);
+        nameInputBox.setSpacing(10);
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Your Name");
+        nameField.setStyle("-fx-font-size: 14;");
+        nameField.setPrefWidth(200); // Set the preferred width of the name field
+
+        nameInputBox.getChildren().add(nameField);
+
+        Label scoreLabel = new Label("Your penalty score: " + score);
+        scoreLabel.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-text-fill: white;");
+
+        // Create a label to display the amount of matches
+        Label matchCountLabel = new Label("Matches: " + matchCount);
+        matchCountLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana; -fx-text-fill: white;");
+
+        Button saveScoreButton = new Button("Save Score");
+        saveScoreButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
+        saveScoreButton.setOnAction(event -> {
+            String name = nameField.getText();
+            saveScore(name, score);
+            primaryStage.setScene(createLeaderboardScene(primaryStage));
+            primaryStage.setTitle("Leaderboard");
+        });
+
         Button backToMenuButton = new Button("Back to Menu");
         backToMenuButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         backToMenuButton.setOnAction(event -> {
             primaryStage.setScene(createMainMenuScene(primaryStage));
             primaryStage.setTitle("Main Menu");
         });
-        endScreenBox.getChildren().addAll(matchCountLabel, backToMenuButton);
+
+        endScreenBox.getChildren().addAll(nameLabel, nameInputBox, scoreLabel, matchCountLabel, saveScoreButton, backToMenuButton);
         endScreenBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return new Scene(endScreenBox, 1300, 800);
     }
+
+
+
+
+    private void saveScore(String name, int score) {
+        try (FileWriter writer = new FileWriter("leaderboard.txt", true)) {
+            writer.write(name + ":" + score + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private Scene createLeaderboardScene(Stage primaryStage) {
+        VBox leaderboardBox = new VBox(20);
+        leaderboardBox.setAlignment(Pos.CENTER);
+
+        List<String> leaderboard = loadLeaderboard();
+        for (String entry : leaderboard) {
+            Label entryLabel = new Label(entry);
+            entryLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana; -fx-text-fill: white;");
+            leaderboardBox.getChildren().add(entryLabel);
+        }
+
+        Button backToMenuButton = new Button("Back to Menu");
+        backToMenuButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
+        backToMenuButton.setOnAction(event -> {
+            primaryStage.setScene(createMainMenuScene(primaryStage));
+            primaryStage.setTitle("Main Menu");
+        });
+
+        leaderboardBox.getChildren().add(backToMenuButton);
+        leaderboardBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
+        return new Scene(leaderboardBox, 1300, 800);
+    }
+
+    private List<String> loadLeaderboard() {
+        List<String> leaderboard = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("leaderboard.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                leaderboard.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        leaderboard.sort((entry1, entry2) -> {
+            try {
+                int score1 = Integer.parseInt(entry1.split(":")[1].trim());
+                int score2 = Integer.parseInt(entry2.split(":")[1].trim());
+                return Integer.compare(score1, score2);
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace(); // Handle parsing errors
+                return 0; // Return 0 if there's an error to keep the original order
+            }
+        });
+
+        return leaderboard;
+    }
+
 
 
 
@@ -201,11 +291,26 @@ public class Main extends Application {
     // Method to create the main menu scene
     private Scene createMainMenuScene(Stage primaryStage) {
         Button playButton = createPlayButton(primaryStage);
+        Button leaderboardButton = createLeaderboardButton(primaryStage);
         Button exitButton = createExitButton(primaryStage);
-        Region root = createMainMenuRoot(playButton, exitButton);
+        Region root = createMainMenuRoot(playButton, leaderboardButton, exitButton);
 
         return new Scene(root, 1300, 800);
     }
+
+    private Button createLeaderboardButton(Stage primaryStage) {
+        Button leaderboardButton = new Button("View Leaderboard");
+        leaderboardButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
+        leaderboardButton.setMinWidth(200);
+
+        leaderboardButton.setOnAction(event -> {
+            primaryStage.setScene(createLeaderboardScene(primaryStage));
+            primaryStage.setTitle("Leaderboard");
+        });
+
+        return leaderboardButton;
+    }
+
 
     private Button createPlayButton(Stage primaryStage) {
         Button playButton = new Button("Play Game");
@@ -231,13 +336,14 @@ public class Main extends Application {
         return exitButton;
     }
 
-    private Region createMainMenuRoot(Button playButton, Button exitButton) {
+    private Region createMainMenuRoot(Button playButton, Button leaderboardButton, Button exitButton) {
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
-        root.getChildren().addAll(playButton, exitButton);
+        root.getChildren().addAll(playButton, leaderboardButton, exitButton);
         root.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return root;
     }
+
 
     public static void main(String[] args) {
         launch(args);

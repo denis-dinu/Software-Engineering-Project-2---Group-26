@@ -3,6 +3,7 @@ public class Game {
     private final Board board;
     private final BoardUI boardUI;
 
+
     public Game() {
         board = new Board();
         board.generateAtoms(6);
@@ -19,6 +20,13 @@ public class Game {
             }
         }
         return matchCount;
+    }
+
+    public int countScore()
+    {
+        int matchPoints = (6-countMatches())*5;
+        int rayPoints = boardUI.board.getRayMarkers().size();
+        return rayPoints + matchPoints;
     }
 
     private boolean isCoordinateMatch(double[] atomCoordinate, double[] playerMarkerCoordinate) {
