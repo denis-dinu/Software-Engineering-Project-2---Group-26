@@ -102,8 +102,8 @@ public class Main extends Application {
     private Region createBoardContainer(BoardUI boardUI) {
         HBox boardContainer = new HBox();
         boardContainer.setAlignment(Pos.CENTER);
-        boardContainer.setPadding(new Insets(0, 0, 0, 1300.0 / 2.0)); // Add padding to the left side
         boardContainer.getChildren().add(boardUI);
+        boardContainer.setFillHeight(false);
         return boardContainer;
     }
 
@@ -133,9 +133,7 @@ public class Main extends Application {
                 return;
             }
 
-            int matchCount = game.countMatches();
-            int score = game.countScore();
-            primaryStage.setScene(createEndRoundScene(primaryStage,game,matchCount, score));
+            primaryStage.setScene(createEndRoundScene(primaryStage, game));
             primaryStage.setTitle("Game End");
         });
 
@@ -151,7 +149,12 @@ public class Main extends Application {
     }
 
 
-    private Scene createEndRoundScene(Stage primaryStage, Game game, int matchCount, int score) {
+    private Scene createEndRoundScene(Stage primaryStage, Game game) {
+        int score = game.countScore();
+        int matchCount = game.countMatches();
+
+        HBox results = new HBox(40);
+
         VBox endScreenBox = new VBox(20);
         endScreenBox.setAlignment(Pos.CENTER);
 
@@ -176,36 +179,91 @@ public class Main extends Application {
         Label matchCountLabel = new Label("Matches: " + matchCount);
         matchCountLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana; -fx-text-fill: white;");
 
+        Label nameWarning = new Label("Please enter your name to save your score");
+        nameWarning.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-text-fill: red;");
+        nameWarning.setVisible(false);
+
+        Label scoreWarning = new Label("File error; cannot save score on the leaderboard");
+        scoreWarning.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-text-fill: red;");
+        scoreWarning.setVisible(false);
+
         Button saveScoreButton = new Button("Save Score");
         saveScoreButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         saveScoreButton.setOnAction(event -> {
             String name = nameField.getText();
-            saveScore(name, score);
-            primaryStage.setScene(createLeaderboardScene(primaryStage));
-            primaryStage.setTitle("Leaderboard");
+            if(name.isEmpty()) {
+                nameWarning.setVisible(true);
+            } else {
+                nameWarning.setVisible(false);
+
+                int status = saveScore(name, score);
+                if(status == 0) {
+                    primaryStage.setScene(createLeaderboardScene(primaryStage));
+                    primaryStage.setTitle("Leaderboard");
+                } else {
+                    scoreWarning.setVisible(true);
+                }
+            }
         });
 
-        Button backToMenuButton = new Button("Back to Menu");
-        backToMenuButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
-        backToMenuButton.setOnAction(event -> {
-            primaryStage.setScene(createMainMenuScene(primaryStage));
-            primaryStage.setTitle("Main Menu");
-        });
+        Button backToMenuButton = createBackButton(primaryStage);
 
-        endScreenBox.getChildren().addAll(nameLabel, nameInputBox, scoreLabel, matchCountLabel, saveScoreButton, backToMenuButton);
-        endScreenBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
-        return new Scene(endScreenBox, 1300, 800);
+        endScreenBox.getChildren().addAll(nameLabel, nameInputBox, scoreLabel, matchCountLabel, saveScoreButton, backToMenuButton, nameWarning, scoreWarning);
+
+        game.getBoardUI().setAtomsVisible(true);
+        game.getBoardUI().setInteractive(false);
+        game.getBoardUI().drawBoard();      // redraw the board to reflect the change in variable interactive
+        Region board = createBoardContainer(game.getBoardUI());
+
+        results.getChildren().addAll(board, endScreenBox);
+        results.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
+        results.setAlignment(Pos.CENTER);
+
+        return new Scene(results, 1300, 800);
     }
 
 
 
+    // Return 0 for success, -1 for error
+    private int saveScore(String name, int score) {
 
-    private void saveScore(String name, int score) {
-        try (FileWriter writer = new FileWriter("leaderboard.txt", true)) {
-            writer.write(name + ":" + score + "\n");
-        } catch (IOException e) {
-            e.printStackTrace();
+        List<String> leaderboard = new ArrayList<>();
+
+        int status = loadLeaderboard(leaderboard);
+        if(status != 0) {   // if leaderboard file is not well formatted or another file error occurred
+            return -1;
         }
+
+        boolean found = false;
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<Integer> scores = new ArrayList<>();
+
+        for (String s : leaderboard) {
+            String[] split = s.split(":");
+            String leaderboardName = split[0];
+            int leaderboardScore = Integer.parseInt(split[1].trim());
+            if(name.equals(leaderboardName)) {
+                found = true;
+                leaderboardScore += score;
+            }
+            names.add(leaderboardName);
+            scores.add(leaderboardScore);
+        }
+        if(!found) {
+            names.add(name);
+            scores.add(score);
+        }
+
+
+        try (FileWriter writer = new FileWriter("leaderboard.txt")) {
+            for(int i = 0; i < names.size(); i++) {
+                writer.write(names.get(i) + ":" + scores.get(i) + "\n");
+            }
+        } catch (IOException e) {
+            return -1;
+        }
+
+        return 0;
     }
 
 
@@ -213,51 +271,93 @@ public class Main extends Application {
         VBox leaderboardBox = new VBox(20);
         leaderboardBox.setAlignment(Pos.CENTER);
 
-        List<String> leaderboard = loadLeaderboard();
-        for (String entry : leaderboard) {
-            Label entryLabel = new Label(entry);
-            entryLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana; -fx-text-fill: white;");
-            leaderboardBox.getChildren().add(entryLabel);
+        addLabel("LEADERBOARD", leaderboardBox, true, Color.WHITE);
+
+        List<String> leaderboard = new ArrayList<>();
+        int status = loadLeaderboard(leaderboard);
+        if(status == 1) {
+            addLabel("Leaderboard formatting error: please either fix leaderboard.txt format or erase it and try again",
+                        leaderboardBox, false, Color.WHITE);
+        } else if(status == 2) {
+            addLabel("File error; leaderboard unavailable", leaderboardBox, false, Color.WHITE);
+        } else {
+            if(leaderboard.isEmpty()) {
+                addLabel("Leaderboard is currently empty...", leaderboardBox, false, Color.WHITE);
+            } else {
+                for(int i=0; i< leaderboard.size(); i++) {
+                    Color c;
+                    if(i == 0) {
+                        c = Color.GOLD;
+                    } else if(i == 1) {
+                        c = Color.SILVER;
+                    } else if(i == 2) {
+                        c = Color.DARKGOLDENROD;
+                    } else {
+                        c = Color.WHITE;
+                    }
+                    addLabel(leaderboard.get(i), leaderboardBox, false, c);
+                }
+            }
         }
 
-        Button backToMenuButton = new Button("Back to Menu");
-        backToMenuButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
-        backToMenuButton.setOnAction(event -> {
-            primaryStage.setScene(createMainMenuScene(primaryStage));
-            primaryStage.setTitle("Main Menu");
-        });
+        Button backToMenuButton = createBackButton(primaryStage);
 
         leaderboardBox.getChildren().add(backToMenuButton);
         leaderboardBox.setBackground(new Background(new BackgroundFill(Color.rgb(70, 70, 70), CornerRadii.EMPTY, Insets.EMPTY)));
         return new Scene(leaderboardBox, 1300, 800);
     }
 
-    private List<String> loadLeaderboard() {
-        List<String> leaderboard = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("leaderboard.txt"))) {
+    private void addLabel(String txt, VBox box, boolean underline, Color color) {
+        Label entryLabel = new Label(txt);
+        entryLabel.setStyle("-fx-font-size: 20; -fx-font-family: Verdana" + (underline ? "; -fx-underline: true" : ""));
+        entryLabel.setTextFill(color);
+        box.getChildren().add(entryLabel);
+    }
+
+    // returns a status code: 0 for success, 1 for leaderboard formatting error, 2 for general file error
+    private int loadLeaderboard(List<String> leaderboard) {
+
+        File f = new File("leaderboard.txt");
+        try {
+            // made the leaderboard system a little more robust by creating a leaderboard file
+            // if there is not already one in the current folder instead of immediately throwing exception
+
+            if(!f.exists()) {
+                if(f.createNewFile()) {
+                    return 0;
+                }
+            }
+            BufferedReader reader = new BufferedReader(new FileReader(f));
+
             String line;
             while ((line = reader.readLine()) != null) {
                 leaderboard.add(line);
             }
+            reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            return 2;
         }
 
-        leaderboard.sort((entry1, entry2) -> {
+        if(!leaderboard.isEmpty()) {
+
             try {
-                int score1 = Integer.parseInt(entry1.split(":")[1].trim());
-                int score2 = Integer.parseInt(entry2.split(":")[1].trim());
-                return Integer.compare(score1, score2);
+
+                // check format of first entry
+                Integer.parseInt(leaderboard.get(0).split(":")[1].trim());
+
+                leaderboard.sort((entry1, entry2) -> {
+                    int score1 = Integer.parseInt(entry1.split(":")[1].trim());
+                    int score2 = Integer.parseInt(entry2.split(":")[1].trim());
+                    return Integer.compare(score1, score2);
+                });
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace(); // Handle parsing errors
-                return 0; // Return 0 if there's an error to keep the original order
+                return 1;
             }
-        });
 
-        return leaderboard;
+        }
+
+        return 0;
     }
-
-
 
 
 

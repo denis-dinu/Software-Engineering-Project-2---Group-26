@@ -1,5 +1,5 @@
 
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class BoardUI extends Pane {
+public class BoardUI extends AnchorPane {
     private static final double HEX_SIZE = 35.0;
     private static final double HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
     private static final double HEX_HEIGHT = 2 * HEX_SIZE;
     private static final Color HEX_COLOR = Color.LIGHTGRAY;
     private static final double horizontalGap = 1; // Adjust horizontal gap
     private static final double verticalGap = 1; // Adjust vertical gap
+    private boolean interactive = true;     // set to false for final display (when user can't press buttons anymore)
 
     final Board board;
 
@@ -51,7 +52,7 @@ public class BoardUI extends Pane {
     private void initializeCellCoordinates(Cell[][] cells) {
         boolean isOffset = false; // Flag to track alternating offset
 
-        double sceneWidth = getWidth() / 4000;
+        double sceneWidth = computeMinWidth(0);
 
         for (int i = 0; i < cells.length; i++) {
             int rowLength = cells[i].length;
@@ -125,22 +126,24 @@ public class BoardUI extends Pane {
 
         }
 
-
-
-        // Draw atoms and their circles of influence after drawing all cells if atoms are visible
-        if (atomsVisible) {
-            for (double[] coordinates : atomCoordinates) {
-                drawAtom(coordinates[0], coordinates[1]);
-                drawAtomCircleOfInfluence(coordinates[0], coordinates[1]);
-            }
-        }
-
-
         for(double[] coordinates : playerMarkerCoordinates)
         {
             drawPlayerMarker(coordinates[0],coordinates[1]);
         }
 
+        // Draw atoms and their circles of influence after drawing all cells if atoms are visible
+        if (atomsVisible) {
+            for (double[] coordinates : atomCoordinates) {
+                Color c;
+                if(hasPlayerMarker(coordinates[0], coordinates[1])) {
+                    c = Color.GREEN;
+                } else {
+                    c = Color.RED;
+                }
+                drawAtom(coordinates[0], coordinates[1], c);
+                drawAtomCircleOfInfluence(coordinates[0], coordinates[1], c);
+            }
+        }
 
         drawRayMarkers();
         drawNumberLabels();
@@ -185,16 +188,16 @@ public class BoardUI extends Pane {
         hexagonButton.setFill(HEX_COLOR); // Set fill color
         hexagonButton.setStroke(Color.DARKGRAY); // Set outline color
         hexagonButton.setStrokeWidth(2); // Set outline width
-
-        hexagonButton.setOnClickAction(() -> {
-            // Perform actions when the hexagon button is clicked
-            if (hasPlayerMarker(centerX, centerY)) {
-                removePlayerMarker(centerX, centerY);
-            } else {
-                addPlayerMarker(centerX, centerY);
-            }
-        });
-
+        if(interactive) {
+            hexagonButton.setOnClickAction(() -> {
+                // Perform actions when the hexagon button is clicked
+                if (hasPlayerMarker(centerX, centerY)) {
+                    removePlayerMarker(centerX, centerY);
+                } else {
+                    addPlayerMarker(centerX, centerY);
+                }
+            });
+        }
 
         getChildren().add(hexagonButton);
     }
@@ -233,29 +236,31 @@ public class BoardUI extends Pane {
     }
 
 
-    private void drawAtom(double centerX, double centerY) {
+    private void drawAtom(double centerX, double centerY, Color color) {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
-        atomCircle.setFill(Color.RED); // Atom color
+        atomCircle.setFill(color); // Atom color
         getChildren().add(atomCircle);
     }
 
     private void drawPlayerMarker(double centerX, double centerY) {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
         atomCircle.setFill(Color.GREY); // Atom color
-        atomCircle.setOnMouseClicked(event -> removePlayerMarker(centerX, centerY));
+        if(interactive) {
+            atomCircle.setOnMouseClicked(event -> removePlayerMarker(centerX, centerY));
+        }
         getChildren().add(atomCircle);
     }
 
 
     ////////
-    private void drawAtomCircleOfInfluence(double centerX, double centerY) {
+    private void drawAtomCircleOfInfluence(double centerX, double centerY, Color color) {
         // Define the radius of the circle of influence
         double influenceRadius = HEX_SIZE * 1.7; // Adjust the multiplier as needed for the desired size
 
         // Create a transparent circle representing the influence of the atom
         Circle atomInfluenceCircle = new Circle(centerX, centerY, influenceRadius);
         atomInfluenceCircle.setFill(Color.TRANSPARENT);
-        atomInfluenceCircle.setStroke(Color.RED);
+        atomInfluenceCircle.setStroke(color);
         atomInfluenceCircle.setStrokeWidth(2); // Adjust the stroke width as needed
 
         // Add the circle to the pane
@@ -414,6 +419,20 @@ public class BoardUI extends Pane {
     private double getUpperRightY(double centerY) {
         return centerY - 0.85 * HEX_SIZE;
     }
+
+    @Override
+    protected double computeMinWidth(double height) {
+        return HEX_WIDTH * 9 + 8 * horizontalGap;
+    }
+
+    @Override
+    protected double computePrefWidth(double height) {
+        return HEX_WIDTH * 9 + 8 * horizontalGap;
+    }
+
+    public void setInteractive(boolean interactive) {
+        this.interactive = interactive;
+    }
 }
 
 
@@ -440,4 +459,5 @@ class HexagonButton extends Polygon {
     public void setOnClickAction(Runnable onClickAction) {
         this.onClickAction = onClickAction;
     }
+
 }
