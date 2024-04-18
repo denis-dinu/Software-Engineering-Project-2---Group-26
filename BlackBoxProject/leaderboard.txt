@@ -1,7 +1,8 @@
 oleksii:5
 erer:10
-john pork:25
-denis:25
-rteret:36
+gomi:30
+john pork:57
 eeee:65
-jonesy:138
+rteret:110
+denis:80
+jonesy:168

@@ -4,7 +4,7 @@ public class Cell {
 
     private boolean atom;
 
-    /*
+    /**
         An array that stores references to the cells which are neighbours of this cell (according to the
         visual representation of the board):
 
@@ -17,13 +17,26 @@ public class Cell {
         null is stored at that index
      */
     private final Cell[] neighbours;
-    private int row, col;       //store the row and column number of this cell on the board
-    private double centerX, centerY;    //store the UI coordinates of the center of this cell for easy access
-                                        //only initialised once a HexagonalBoardUI is constructed from a board with this cell
 
-    /*  An ArrayList that stores information about the rays passing through this cell - each ray passing through this cell
-        corresponds to a ray segment in this ArrayList - each ray segment gives the entry point of the ray to this cell
-        and the exit point from this cell - used for the final display of rays on the board
+    /**
+     * The row number of this cell on the board (in the range 0-8)
+     */
+    private int row;
+
+    /**
+     * The column number of this cell on the board
+     */
+    private int col;
+
+    /**
+     * UI coordinates of the center of this cell for easy access
+     */
+    private double centerX, centerY;    //only initialised once a HexagonalBoardUI is constructed from a board with this cell
+
+    /**
+     *   An ArrayList that stores information about the rays passing through this cell - each ray passing through this cell
+     *   corresponds to a ray segment in this ArrayList - each ray segment gives the entry point of the ray to this cell
+     *   and the exit point from this cell - used for the final display of rays on the board
      */
     private final ArrayList<RaySegment> raySegments;
 

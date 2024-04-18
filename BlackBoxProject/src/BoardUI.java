@@ -1,5 +1,8 @@
 
+import javafx.geometry.Pos;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -94,6 +97,14 @@ public class BoardUI extends AnchorPane {
             }
         }
 
+    }
+
+    public Region createBoardContainer() {
+        HBox boardContainer = new HBox();
+        boardContainer.setAlignment(Pos.CENTER);
+        boardContainer.getChildren().add(this);
+        boardContainer.setFillHeight(false);
+        return boardContainer;
     }
 
     // Method to toggle the visibility of atoms
