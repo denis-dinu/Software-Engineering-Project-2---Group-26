@@ -10,6 +10,15 @@ public class Game {
         boardUI = new BoardUI(board);
     }
 
+    // alternative constructor (used in testing but also usable to construct a Game from an already existing Board)
+    public Game(Board board) {
+        this.board = board;
+        // if the provided board does not already contain 6 atoms, place remaining required number of atoms
+        int atomsPlaced = board.countAtoms();
+        board.generateAtoms(6-atomsPlaced);
+        this.boardUI = new BoardUI(board);
+    }
+
     public int countMatches() {
         int matchCount = 0;
         for (double[] atomCoordinate : boardUI.getAtomCoordinates()) {

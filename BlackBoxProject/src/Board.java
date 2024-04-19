@@ -147,8 +147,20 @@ public class Board {
         rayMarkers.add(new RayMarker(inputPoint, outputPoint, color));
     }
 
-    //useful for testing the generateAtoms methods
+    //useful for testing the ray processing algorithm
     public void setSeed(int seed) {
         random = new Random(seed);
+    }
+
+    public int countAtoms() {
+        int numAtoms = 0;
+        for(Cell[] row: cells) {
+            for(Cell cell: row) {
+                if(cell.hasAtom()) {
+                    numAtoms++;
+                }
+            }
+        }
+        return numAtoms;
     }
 }
