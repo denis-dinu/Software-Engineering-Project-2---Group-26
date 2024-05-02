@@ -1,6 +1,6 @@
 /**
- * Class that contains game-related logic, such as score calculation and performing a "game step" where
- * the experimenter sends a ray into the board and observes the result
+ * Class that contains game-related logic. Contains functionality for score calculation and performing a
+ * "game step" where the experimenter sends a ray into the board and observes the result
  */
 public class Game {
 
@@ -28,11 +28,24 @@ public class Game {
         if(board == null) {
             throw new IllegalArgumentException("Illegal board argument to Game constructor");
         }
+
         this.board = board;
         // if the provided board does not already contain 6 atoms, place remaining required number of atoms
         int atomsPlaced = board.countAtoms();
         board.generateAtoms(atomsPlaced < 6 ? 6-atomsPlaced : 0);
         this.boardUI = new BoardUI(board);
+    }
+
+    /**
+     * Counts the score obtained by the player in this Game, considering the number of missed guesses
+     * and the number of ray markers used
+     * @return the player's penalty score
+     */
+    public int countScore()
+    {
+        int matchPoints = (6-countMatches())*5;
+        int rayPoints = boardUI.board.getRayMarkers().size();
+        return rayPoints + matchPoints;
     }
 
     /**
@@ -52,18 +65,6 @@ public class Game {
     }
 
     /**
-     * Counts the score obtained by the player in this Game, considering the number of missed guesses
-     * and the number of ray markers used
-     * @return the player's penalty score
-     */
-    public int countScore()
-    {
-        int matchPoints = (6-countMatches())*5;
-        int rayPoints = boardUI.board.getRayMarkers().size();
-        return rayPoints + matchPoints;
-    }
-
-    /**
      * Determines whether 2 given sets of coordinates match
      * @param atomCoordinate the x and y coordinates of a true atom position
      * @param playerMarkerCoordinate the x and y coordinates of a player marker
@@ -76,7 +77,7 @@ public class Game {
         double playerMarkerY = playerMarkerCoordinate[1];
 
         // Add a tolerance value to handle slight variations in coordinates due to rounding errors
-        final double TOLERANCE = 1e-5; // Adjust tolerance as needed
+        final double TOLERANCE = 1e-5;
         return Math.abs(atomX - playerMarkerX) < TOLERANCE && Math.abs(atomY - playerMarkerY) < TOLERANCE;
     }
 

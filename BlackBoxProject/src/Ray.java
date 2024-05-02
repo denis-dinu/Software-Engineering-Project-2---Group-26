@@ -14,16 +14,14 @@ public class Ray {
      */
     public static int process(Board board, int inputPoint) {
 
-        if(inputPoint < 1 || inputPoint > 54) {
-            throw new IllegalArgumentException("Invalid input point");
+        if(inputPoint < 1 || inputPoint > 54 || board == null) {
+            throw new IllegalArgumentException("Invalid argument to Ray.process");
         }
 
         Cell[][] cells = board.getCells();
 
-        Cell cell = inputPointToCell(cells, inputPoint);    // get the first cell based on the input point
-        // get the entry point to first cell based on the input point
-        // entry point goes from 0 (upper-left) to 5 (left)
-        int entryPoint = inputPointToEntryPoint(inputPoint);
+        Cell cell = inputPointToCell(cells, inputPoint);
+        int entryPoint = inputPointToEntryPoint(inputPoint); // entry point goes from 0 (upper-left) to 5 (left)
         int exitPoint;
 
         /*
@@ -43,78 +41,26 @@ public class Ray {
 
             exitPoint = computeExitPoint(cell, entryPoint);
 
-            // add information about the ray traversing this cell to this cell's raySegments ArrayList to display the ray later
+            // add info about the ray traversing this cell to this cell's raySegments ArrayList
+            // this is a side effect on the board passed as argument that we found necessary for the final board display
             cell.addRaySegment(entryPoint, exitPoint);
 
             if(exitPoint == -1) {      // exit loop and return if the ray is absorbed
                 return -1;
             }
-            Cell next = cell.getNeighbours()[exitPoint];
 
+            Cell next = cell.getNeighbours()[exitPoint];
             if(next == null) {       // exit loop if we exit the board
                 break;
             } else {
                 cell = next;     // move cell to the next cell on the ray path
             }
-            // calculate entry point to the next cell based on exit point from current cell
+            // entry point to the next cell is based on exit point from current cell
             entryPoint = (exitPoint + 3) % 6;
 
         }
 
         return cellToOutputPoint(cell, exitPoint);
-    }
-
-    /**
-     * Computes the exit point of a ray from a cell based on the entry point to that cell and whether the
-     * neighbouring cells have atoms or not
-     *
-     * @param cell the cell that the ray is traversing
-     * @param entryPoint the entry point to the cell in the range 0 (for upper-left) to 5 (for left)
-     * @return the exit point in the range 0 (for upper-left) to 5 (for left) or -1 for absorbed rays
-     */
-    private static int computeExitPoint(Cell cell, int entryPoint) {
-        // get the 3 neighbours opposite to the entry point in clockwise direction
-        Cell neighbour1 = cell.getNeighbours()[(entryPoint + 2) % 6];
-        Cell neighbour2 = cell.getNeighbours()[(entryPoint + 3) % 6];
-        Cell neighbour3 = cell.getNeighbours()[(entryPoint + 4) % 6];
-
-        boolean atomAtNeighbour1 =  neighbour1 != null && neighbour1.hasAtom();
-        boolean atomAtNeighbour2 =  neighbour2 != null && neighbour2.hasAtom();
-        boolean atomAtNeighbour3 =  neighbour3 != null && neighbour3.hasAtom();
-
-        // ray is absorbed
-        if(cell.hasAtom()) {
-            return -1;
-        }
-
-        // no atom encountered case or ray is absorbed on the next iteration
-        else if( !atomAtNeighbour1 && !atomAtNeighbour3) {
-            return (entryPoint + 3) % 6;
-        }
-
-        // ray is reflected
-        else if( atomAtNeighbour1 && atomAtNeighbour3) {
-            return entryPoint;
-        }
-
-        // 60 degrees and 120 degrees deflection cases
-        // deflection to the left
-        else if( atomAtNeighbour3 ) {
-            if(atomAtNeighbour2) {  // 120 degrees
-                return (entryPoint + 1) % 6;
-            } else {                // 60 degrees
-                return (entryPoint + 2) % 6;
-            }
-        }
-
-        // deflection to the right
-        else {  // ( atomAtNeighbour1 )
-            if(atomAtNeighbour2) {  // 120 degrees
-                return (entryPoint + 5) % 6;
-            } else {                // 60 degrees
-                return (entryPoint + 4) % 6;
-            }
-        }
     }
 
     /**
@@ -170,6 +116,76 @@ public class Ray {
     }
 
     /**
+     * Contains logic for handling the edge of the board case: checks whether a ray entering a given cell
+     * at a given entry point to that cell is reflected straight away
+     *
+     * @param cell the cell where the ray enters the board
+     * @param entryPoint the entry point to the given cell, in the range 0 (for upper-left) to 5 (for left)
+     * @return true if the atom is reflected right away, before even entering the board,
+     * as a result of an atom on the edge of the board, and false otherwise
+     */
+    private static boolean isReflectedOnEdge(Cell cell, int entryPoint) {
+        Cell neighbour1 = cell.getNeighbours()[(entryPoint+5) % 6];
+        Cell neighbour2 = cell.getNeighbours()[(entryPoint+1) % 6];
+
+        return (neighbour1 != null && neighbour1.hasAtom()) || (neighbour2 != null && neighbour2.hasAtom()) || cell.hasAtom();
+    }
+
+    /**
+     * Computes the exit point of a ray from a cell based on the entry point to that cell and whether the
+     * neighbouring cells have atoms or not
+     *
+     * @param cell the cell that the ray is traversing
+     * @param entryPoint the entry point to the cell in the range 0 (for upper-left) to 5 (for left)
+     * @return the exit point in the range 0 (for upper-left) to 5 (for left) or -1 for absorbed rays
+     */
+    private static int computeExitPoint(Cell cell, int entryPoint) {
+        // get the 3 neighbours opposite to the entry point in clockwise direction
+        Cell neighbour1 = cell.getNeighbours()[(entryPoint + 2) % 6];
+        Cell neighbour2 = cell.getNeighbours()[(entryPoint + 3) % 6];
+        Cell neighbour3 = cell.getNeighbours()[(entryPoint + 4) % 6];
+
+        boolean atomAtNeighbour1 =  neighbour1 != null && neighbour1.hasAtom();
+        boolean atomAtNeighbour2 =  neighbour2 != null && neighbour2.hasAtom();
+        boolean atomAtNeighbour3 =  neighbour3 != null && neighbour3.hasAtom();
+
+        // ray is absorbed
+        if(cell.hasAtom()) {
+            return -1;
+        }
+
+        // no atom encountered case or ray is absorbed on the next iteration
+        else if( !atomAtNeighbour1 && !atomAtNeighbour3) {
+            return (entryPoint + 3) % 6;
+        }
+
+        // ray is reflected
+        else if( atomAtNeighbour1 && atomAtNeighbour3) {
+            return entryPoint;
+        }
+
+        // 60 degrees and 120 degrees deflection cases
+        // deflection to the left
+        else if( atomAtNeighbour3 ) {
+            if(atomAtNeighbour2) {  // 120 degrees
+                return (entryPoint + 1) % 6;
+            } else {                // 60 degrees
+                return (entryPoint + 2) % 6;
+            }
+        }
+
+        // deflection to the right
+        else {  // ( atomAtNeighbour1 )
+            if(atomAtNeighbour2) {  // 120 degrees
+                return (entryPoint + 5) % 6;
+            } else {                // 60 degrees
+                return (entryPoint + 4) % 6;
+            }
+        }
+    }
+
+
+    /**
      * Figures out the output point number (in the range 1-54) associated with the exit point
      * (in the range 0 for upper-left to 5 for left) from the given cell, assuming the given cell
      * is on the edge of the board
@@ -205,21 +221,6 @@ public class Ray {
         }
     }
 
-    /**
-     * Contains logic for handling the edge of the board case: checks whether a ray entering a given cell
-     * at a given entry point to that cell is reflected straight away
-     *
-     * @param cell the cell where the ray enters the board
-     * @param entryPoint the entry point to the given cell, in the range 0 (for upper-left) to 5 (for left)
-     * @return true if the atom is reflected right away, before even entering the board,
-     * as a result of an atom on the edge of the board, and false otherwise
-     */
-    private static boolean isReflectedOnEdge(Cell cell, int entryPoint) {
-        Cell neighbour1 = cell.getNeighbours()[(entryPoint+5) % 6];
-        Cell neighbour2 = cell.getNeighbours()[(entryPoint+1) % 6];
-
-        return (neighbour1 != null && neighbour1.hasAtom()) || (neighbour2 != null && neighbour2.hasAtom()) || cell.hasAtom();
-    }
 }
 
 

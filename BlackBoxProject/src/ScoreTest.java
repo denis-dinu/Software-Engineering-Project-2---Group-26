@@ -32,7 +32,7 @@ public class ScoreTest {
         ArrayList<double[]> atomMarkers = game.getBoardUI().getPlayerMarkerCoordinates();
         Cell[] guesses = new Cell[] {cells[1][1], cells[1][2], cells[3][3], cells[3][6], cells[7][0], cells[7][5]};
         for(Cell cell: guesses) {
-            atomMarkers.add(new double[] {cell.getCenterX(), cell.getCenterY()});
+            atomMarkers.add(new double[] {cell.getCoordinates().centerX(), cell.getCoordinates().centerY()});
         }
 
         // add some ray markers
@@ -49,7 +49,7 @@ public class ScoreTest {
         // set up player atom markers (guesses)
         ArrayList<double[]> atomMarkers = game.getBoardUI().getPlayerMarkerCoordinates();
         for(Cell cell: atoms) {
-            atomMarkers.add(new double[] {cell.getCenterX(), cell.getCenterY()});
+            atomMarkers.add(new double[] {cell.getCoordinates().centerX(), cell.getCoordinates().centerY()});
         }
 
         // score should be 0

@@ -1,5 +1,4 @@
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -21,7 +20,6 @@ public class CommonUI {
         return backButton;
     }
 
-    // overloading addLabel method
     private static Label createLabel(String txt, Color color, boolean initiallyVisible, boolean underline) {
         Label label = new Label(txt);
         label.setStyle("-fx-font-size: 20; -fx-font-family: Verdana" + (underline ? "; -fx-underline: true" : ""));

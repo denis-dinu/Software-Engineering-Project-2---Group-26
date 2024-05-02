@@ -1,12 +1,10 @@
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import java.io.*;
 
 
@@ -25,8 +23,11 @@ public class Main extends Application {
     }
 
 
-    // Method to create the main menu scene
     public static Scene createMainMenuScene(Stage primaryStage) {
+        if(primaryStage == null) {
+            throw new IllegalArgumentException("Invalid argument to Main.createMainMenuScene");
+        }
+
         Button playButton = createPlayButton(primaryStage);
         Button leaderboardButton = createLeaderboardButton(primaryStage);
         Button exitButton = createExitButton(primaryStage);
@@ -34,20 +35,6 @@ public class Main extends Application {
 
         return new Scene(root, 1300, 800);
     }
-
-    private static Button createLeaderboardButton(Stage primaryStage) {
-        Button leaderboardButton = new Button("View Leaderboard");
-        leaderboardButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
-        leaderboardButton.setMinWidth(200);
-
-        leaderboardButton.setOnAction(event -> {
-            primaryStage.setScene(LeaderboardUI.createLeaderboardScene(primaryStage));
-            primaryStage.setTitle("Leaderboard");
-        });
-
-        return leaderboardButton;
-    }
-
 
     private static Button createPlayButton(Stage primaryStage) {
         Button playButton = new Button("Play Game");
@@ -61,6 +48,19 @@ public class Main extends Application {
         });
 
         return playButton;
+    }
+
+    private static Button createLeaderboardButton(Stage primaryStage) {
+        Button leaderboardButton = new Button("View Leaderboard");
+        leaderboardButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
+        leaderboardButton.setMinWidth(200);
+
+        leaderboardButton.setOnAction(event -> {
+            primaryStage.setScene(LeaderboardUI.createLeaderboardScene(primaryStage));
+            primaryStage.setTitle("Leaderboard");
+        });
+
+        return leaderboardButton;
     }
 
     private static Button createExitButton(Stage primaryStage) {

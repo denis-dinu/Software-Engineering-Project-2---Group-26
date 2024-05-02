@@ -1,10 +1,6 @@
-
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -18,6 +14,9 @@ public class RoundEndUI {
     private static final Label SCORE_WARNING = CommonUI.createWarningLabel("File error; cannot save score on the leaderboard");
 
     public static Scene createEndRoundScene(Stage primaryStage, Game game) {
+        if(primaryStage == null || game == null) {
+            throw new IllegalArgumentException("Invalid argument to RoundEndUI.createEndRoundScene");
+        }
 
         HBox results = new HBox(40);
 
@@ -40,14 +39,12 @@ public class RoundEndUI {
         endScreenBox.setAlignment(Pos.CENTER);
 
         Label nameLabel = CommonUI.createLabel("Enter your name:");
-
         TextField nameField = createNameField();
 
         Label scoreLabel = CommonUI.createLabel("Your penalty score: " + score);
         Label matchCountLabel = CommonUI.createLabel("Matches: " + matchCount);
 
         Button saveScoreButton = createSaveScoreButton(primaryStage, nameField, score);
-
         Button backToMenuButton = CommonUI.createBackButton(primaryStage);
 
         NAME_WARNING.setVisible(false);
@@ -58,13 +55,21 @@ public class RoundEndUI {
         return endScreenBox;
     }
 
+    private static TextField createNameField() {
+        TextField nameField = new TextField();
+        nameField.setPromptText("Your Name");
+        nameField.setStyle("-fx-font-size: 14;");
+        nameField.setMaxWidth(200);
+        return nameField;
+    }
+
     private static Button createSaveScoreButton(Stage primaryStage, TextField nameField, int score) {
         Button saveScoreButton = new Button("Save Score");
         saveScoreButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         saveScoreButton.setOnAction(event -> {
 
             if(!isNameFieldEmpty(nameField)) {
-                int status = Leaderboard.saveScore(nameField.getText(), score);
+                int status = Leaderboard.saveScore(nameField.getText(), score, "leaderboard.txt");
                 if (status == 0) {
                     primaryStage.setScene(LeaderboardUI.createLeaderboardScene(primaryStage));
                     primaryStage.setTitle("Leaderboard");
@@ -74,21 +79,6 @@ public class RoundEndUI {
             }
         });
         return saveScoreButton;
-    }
-
-    private static TextField createNameField() {
-        TextField nameField = new TextField();
-        nameField.setPromptText("Your Name");
-        nameField.setStyle("-fx-font-size: 14;");
-        nameField.setMaxWidth(200);
-        return nameField;
-    }
-
-    private static Region createFinalBoardView(BoardUI boardUI) {
-        boardUI.setAtomsVisible(true);
-        boardUI.setInteractive(false);
-        boardUI.drawBoard();      // redraw the board to reflect the change in variable interactive
-        return boardUI.createBoardContainer();
     }
 
     // returns whether the name field is empty and triggers a name warning if it is
@@ -102,4 +92,12 @@ public class RoundEndUI {
             return false;
         }
     }
+
+    private static Region createFinalBoardView(BoardUI boardUI) {
+        boardUI.setAtomsVisible(true);
+        boardUI.setInteractive(false);
+        boardUI.drawBoard();      // redraw the board to reflect the change in variable interactive
+        return boardUI.createBoardContainer();
+    }
+
 }

@@ -1,9 +1,6 @@
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -17,19 +14,22 @@ public class GameUI{
 
 
     public static Scene createGameScene(Stage primaryStage, Game game) {
-        // Create the game components
+        if(primaryStage == null || game == null) {
+            throw new IllegalArgumentException("Invalid argument to GameUI.createGameScene");
+        }
+
         BoardUI boardUI = game.getBoardUI();
 
-        // Create an HBox to contain the game's board UI
+        // Container for the board UI
         Region boardContainer = boardUI.createBoardContainer();
 
-        // Create game scene buttons and an HBox to contain them
+        // Container for game scene buttons
         Region buttonBox = createButtonBox(primaryStage, game);
 
-        // Create the input field and output area and an HBox to contain them
+        // Container for input field and output area
         Region consoleBox = createConsoleBox(game);
 
-        // Create a layout pane for the game components
+        // Gather all game scene components
         Region gamePane = createGamePane(boardContainer, buttonBox, consoleBox);
 
         return new Scene(gamePane, 1300, 800);
@@ -37,10 +37,40 @@ public class GameUI{
 
     //--- Methods to create the game scene components ---
 
-    // Create an HBox to center the board horizontally and add padding to the left
+    private static Region createButtonBox(Stage primaryStage, Game game) {
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.getChildren().addAll(
+                CommonUI.createBackButton(primaryStage),
+                createEndRoundButton(primaryStage, game)
+        );
+        return buttonBox;
+    }
+
+    private static Button createEndRoundButton(Stage primaryStage, Game game) {
+        Button countMatchesButton = new Button("End Round");
+        countMatchesButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
+        countMatchesButton.setMinWidth(200);
+        countMatchesButton.setMinHeight(50);
+
+        countMatchesButton.setOnAction(event -> endRound(primaryStage, game));
+
+        return countMatchesButton;
+    }
+
+    private static void endRound(Stage primaryStage, Game game) {
+        // check if player has made 6 guesses
+        if(game.getBoardUI().getPlayerMarkerCoordinates().size() != 6) {
+            System.out.println("\nPlease place 6 atom markers before ending the round");
+            return;
+        }
+
+        primaryStage.setScene(RoundEndUI.createEndRoundScene(primaryStage, game));
+        primaryStage.setTitle("Game End");
+    }
 
     private static Region createConsoleBox(Game game) {
-        HBox consoleBox = new HBox(10); // Adjust spacing between components as needed
+        HBox consoleBox = new HBox(10);
         consoleBox.setAlignment(Pos.CENTER);
 
         // Create the console components
@@ -55,11 +85,12 @@ public class GameUI{
         TextArea outputArea = new TextArea();
         outputArea.setEditable(false);
         outputArea.setStyle("-fx-font-size: 14;");
-        outputArea.setPrefWidth(200); // Set a fixed width for the output area
-        outputArea.setPrefHeight(100); // Set a fixed height for the output area
+        outputArea.setPrefWidth(200);
+        outputArea.setPrefHeight(100);
         outputArea.setWrapText(true);
 
-        System.setOut(new PrintStream(new TextAreaOutputStream(outputArea)));   //redirect standard output to the output text area
+        // redirect standard output to the output text area
+        System.setOut(new PrintStream(new TextAreaOutputStream(outputArea)));
 
         return outputArea;
     }
@@ -68,10 +99,10 @@ public class GameUI{
         TextField inputField = new TextField();
         inputField.setPromptText("Enter ray input point");
         inputField.setStyle("-fx-font-size: 14;");
-        inputField.setPrefWidth(200); // Set a fixed width for the input field
+        inputField.setPrefWidth(200);
 
 
-        // Set the action for the input field
+        // Set the action to be performed when user enters input
         inputField.setOnAction(event -> processInput(inputField.getText(), game, outputArea));
 
         return inputField;
@@ -91,40 +122,6 @@ public class GameUI{
         }
     }
 
-
-    private static Region createButtonBox(Stage primaryStage, Game game) {
-        HBox buttonBox = new HBox(20);
-        buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.getChildren().addAll(
-                CommonUI.createBackButton(primaryStage),
-                createEndRoundButton(primaryStage, game)
-        );
-        return buttonBox;
-    }
-
-
-    private static Button createEndRoundButton(Stage primaryStage, Game game) {
-        Button countMatchesButton = new Button("End Round");
-        countMatchesButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
-        countMatchesButton.setMinWidth(200);
-        countMatchesButton.setMinHeight(50);
-
-        countMatchesButton.setOnAction(event -> endRound(primaryStage, game));
-
-        return countMatchesButton;
-    }
-
-    private static void endRound(Stage primaryStage, Game game) {
-        //check if player has made 6 guesses
-        if(game.getBoardUI().getPlayerMarkerCoordinates().size() != 6) {
-            System.out.println("\nPlease place 6 atom markers before ending the round");
-            return;
-        }
-
-        primaryStage.setScene(RoundEndUI.createEndRoundScene(primaryStage, game));
-        primaryStage.setTitle("Game End");
-    }
-
     private static Region createGamePane(Region boardContainer, Region buttonBox, Region consoleBox) {
         VBox gamePane = new VBox(10);
         gamePane.setAlignment(Pos.CENTER);
@@ -133,7 +130,7 @@ public class GameUI{
         return gamePane;
     }
 
-    // not used in final version
+    // not used in final version, but kept because it is useful for debugging, if needed
     private static Button createToggleAtomsButton(BoardUI boardUI) {
         Button toggleAtomsButton = new Button("Toggle Atoms Visibility");
         toggleAtomsButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");

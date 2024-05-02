@@ -7,10 +7,7 @@ import java.util.ArrayList;
  */
 public class Cell {
 
-    /**
-     * True if this cell contains an atom, false otherwise
-     */
-    private boolean atom;
+    private boolean atom; // does this cell contain an atom?
 
     /**
         An array that stores references to the cells which are neighbours of this cell (according to the
@@ -26,20 +23,11 @@ public class Cell {
      */
     private final Cell[] neighbours;
 
-    /**
-     * The row number of this cell on the board (in the range 0-8)
-     */
     private int row;
-
-    /**
-     * The column number of this cell on the board (in the range 0-8)
-     */
     private int col;
 
-    /**
-     * UI coordinates of the center of this cell for easy access
-     */
-    private double centerX, centerY;    // only initialised once a BoardUI is constructed from a board with this cell
+    // UI coordinates of the center of this cell for easy access
+    private Coordinates coordinates;    // only initialised once a BoardUI is constructed from a board with this cell
 
     /**
      *   An ArrayList that stores information about the rays passing through this cell - each ray passing through this cell
@@ -96,20 +84,12 @@ public class Cell {
         this.col = col;
     }
 
-    public double getCenterX() {
-        return centerX;
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
-    public void setCenterX(double centerX) {
-        this.centerX = centerX;
-    }
-
-    public double getCenterY() {
-        return centerY;
-    }
-
-    public void setCenterY(double centerY) {
-        this.centerY = centerY;
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
     }
 
     public ArrayList<RaySegment> getRaySegments() {

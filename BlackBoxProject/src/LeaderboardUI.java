@@ -1,11 +1,7 @@
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -17,6 +13,10 @@ import java.util.List;
 public class LeaderboardUI {
 
     public static Scene createLeaderboardScene(Stage primaryStage) {
+        if(primaryStage == null) {
+            throw new IllegalArgumentException("Invalid argument to LeaderboardUI.createLeaderboardScene");
+        }
+
         VBox leaderboardBox = new VBox(20);
         leaderboardBox.setAlignment(Pos.CENTER);
 
@@ -32,9 +32,11 @@ public class LeaderboardUI {
         return new Scene(leaderboardBox, 1300, 800);
     }
 
+    // fills the leaderboard with the contents of file leaderboard.txt in the same folder where the application
+    // is running (if leaderboard.txt does not exist it is created)
     private static void fillLeaderboard(VBox leaderboardBox) {
         Leaderboard leaderboard = new Leaderboard();
-        int status = leaderboard.loadLeaderboard();
+        int status = leaderboard.loadLeaderboard("leaderboard.txt");
         if(status == 1) {
             leaderboardBox.getChildren().add(
                     CommonUI.createColoredLabel("Leaderboard formatting error: please either fix leaderboard.txt format or erase it and try again", Color.RED));

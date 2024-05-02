@@ -3,6 +3,6 @@ erer:10
 gomi:30
 john pork:57
 eeee:65
-denis:80
-rteret:110
-jonesy:325
+denis:88
+rteret:200
+jonesy:355
