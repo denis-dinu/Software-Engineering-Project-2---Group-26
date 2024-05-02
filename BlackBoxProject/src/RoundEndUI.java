@@ -14,6 +14,9 @@ import javafx.stage.Stage;
  */
 public class RoundEndUI {
 
+    private static final Label NAME_WARNING = CommonUI.createWarningLabel("Please enter your name to save your score");
+    private static final Label SCORE_WARNING = CommonUI.createWarningLabel("File error; cannot save score on the leaderboard");
+
     public static Scene createEndRoundScene(Stage primaryStage, Game game) {
 
         HBox results = new HBox(40);
@@ -43,29 +46,34 @@ public class RoundEndUI {
         Label scoreLabel = CommonUI.createLabel("Your penalty score: " + score);
         Label matchCountLabel = CommonUI.createLabel("Matches: " + matchCount);
 
-        Label nameWarning = CommonUI.createWarningLabel("Please enter your name to save your score");
-        Label scoreWarning = CommonUI.createWarningLabel("File error; cannot save score on the leaderboard");
+        Button saveScoreButton = createSaveScoreButton(primaryStage, nameField, score);
 
+        Button backToMenuButton = CommonUI.createBackButton(primaryStage);
+
+        NAME_WARNING.setVisible(false);
+        SCORE_WARNING.setVisible(false);
+
+        endScreenBox.getChildren().addAll(nameLabel, nameField, scoreLabel, matchCountLabel,
+                saveScoreButton, backToMenuButton, NAME_WARNING, SCORE_WARNING);
+        return endScreenBox;
+    }
+
+    private static Button createSaveScoreButton(Stage primaryStage, TextField nameField, int score) {
         Button saveScoreButton = new Button("Save Score");
         saveScoreButton.setStyle("-fx-font-size: 24; -fx-font-family: Verdana; -fx-background-radius: 30;");
         saveScoreButton.setOnAction(event -> {
 
-            if(!isNameFieldEmpty(nameField, nameWarning)) {
+            if(!isNameFieldEmpty(nameField)) {
                 int status = Leaderboard.saveScore(nameField.getText(), score);
                 if (status == 0) {
                     primaryStage.setScene(LeaderboardUI.createLeaderboardScene(primaryStage));
                     primaryStage.setTitle("Leaderboard");
                 } else {
-                    scoreWarning.setVisible(true);
+                    SCORE_WARNING.setVisible(true);
                 }
             }
         });
-
-
-        Button backToMenuButton = CommonUI.createBackButton(primaryStage);
-
-        endScreenBox.getChildren().addAll(nameLabel, nameField, scoreLabel, matchCountLabel, saveScoreButton, backToMenuButton, nameWarning, scoreWarning);
-        return endScreenBox;
+        return saveScoreButton;
     }
 
     private static TextField createNameField() {
@@ -84,13 +92,13 @@ public class RoundEndUI {
     }
 
     // returns whether the name field is empty and triggers a name warning if it is
-    private static boolean isNameFieldEmpty(TextField nameField, Label nameWarning) {
+    private static boolean isNameFieldEmpty(TextField nameField) {
         String name = nameField.getText();
         if (name.isEmpty()) {
-            nameWarning.setVisible(true);
+            NAME_WARNING.setVisible(true);
             return true;
         } else {
-            nameWarning.setVisible(false);
+            NAME_WARNING.setVisible(false);
             return false;
         }
     }

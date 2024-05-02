@@ -1,7 +1,15 @@
 import java.util.ArrayList;
 
+/**
+ * Class that models a single cell in a BlackBox board and its associated information (its position
+ * on the board, both absolute and relative to other cells, whether it contains an atom, the rays passing
+ * through it)
+ */
 public class Cell {
 
+    /**
+     * True if this cell contains an atom, false otherwise
+     */
     private boolean atom;
 
     /**
@@ -24,14 +32,14 @@ public class Cell {
     private int row;
 
     /**
-     * The column number of this cell on the board
+     * The column number of this cell on the board (in the range 0-8)
      */
     private int col;
 
     /**
      * UI coordinates of the center of this cell for easy access
      */
-    private double centerX, centerY;    //only initialised once a HexagonalBoardUI is constructed from a board with this cell
+    private double centerX, centerY;    // only initialised once a BoardUI is constructed from a board with this cell
 
     /**
      *   An ArrayList that stores information about the rays passing through this cell - each ray passing through this cell

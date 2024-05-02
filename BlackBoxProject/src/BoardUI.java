@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Class containing methods to create UI elements specific to the board
+ */
 public class BoardUI extends AnchorPane {
     private static final double HEX_SIZE = 35.0;
     private static final double HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
@@ -20,28 +23,25 @@ public class BoardUI extends AnchorPane {
     private static final Color HEX_COLOR = Color.LIGHTGRAY;
     private static final double horizontalGap = 1; // Adjust horizontal gap
     private static final double verticalGap = 1; // Adjust vertical gap
+
     private boolean interactive = true;     // set to false for final display (when user can't press buttons anymore)
-
     final Board board;
-
-    // Getter method for retrieving the atom coordinates
-    public ArrayList<double[]> getAtomCoordinates() {
-        return atomCoordinates;
-    }
-
-    // Getter method for retrieving the player marker coordinates
-    public ArrayList<double[]> getPlayerMarkerCoordinates() {
-        return playerMarkerCoordinates;
-    }
     private boolean atomsVisible = false; // Track the visibility state of atoms
 
-    /*
-        A hashmap to store the text labels showing input points on the edge of the board, with the
-        number shown on the label as key and the JavaFX text node itself as the value
+    /**
+     *  A hashmap to store the text labels showing input points on the edge of the board, with the
+     *  number shown on the label as key and the JavaFX text node itself as the value
      */
     private final HashMap<Integer, Text> numberLabels = new HashMap<>();
-    // List to store the coordinates of cells with atoms
+
+    /**
+     * A list to store the coordinates of cells with atoms
+     */
     private final ArrayList<double[]> atomCoordinates = new ArrayList<>();
+
+    /**
+     * A list to store the coordinates of cells with player markers
+     */
     private final ArrayList<double[]> playerMarkerCoordinates = new ArrayList<>();
 
     public BoardUI(Board board) {
@@ -120,12 +120,25 @@ public class BoardUI extends AnchorPane {
     protected void drawBoard() {
         getChildren().clear(); // Clear previous drawings
 
-        Cell[][] cells = board.getCells();
+        drawCells(board.getCells());
 
+        for(double[] coordinates : playerMarkerCoordinates)
+        {
+            drawPlayerMarker(coordinates[0],coordinates[1]);
+        }
+
+        if (atomsVisible) {
+            drawAtomsAndCircles();
+        }
+
+        drawRayMarkers();
+        drawNumberLabels();
+    }
+
+    private void drawCells(Cell[][] cells) {
         for (Cell[] cellRow: cells) {
             for (Cell cell: cellRow) {
 
-                // Draw hexagon
                 drawHexagon(cell.getCenterX(), cell.getCenterY());
 
                 ArrayList<RaySegment> raySegments = cell.getRaySegments();
@@ -134,32 +147,8 @@ public class BoardUI extends AnchorPane {
                     drawRaySegments(cell.getCenterX(), cell.getCenterY(), raySegments);
                 }
             }
-
         }
-
-        for(double[] coordinates : playerMarkerCoordinates)
-        {
-            drawPlayerMarker(coordinates[0],coordinates[1]);
-        }
-
-        // Draw atoms and their circles of influence after drawing all cells if atoms are visible
-        if (atomsVisible) {
-            for (double[] coordinates : atomCoordinates) {
-                Color c;
-                if(hasPlayerMarker(coordinates[0], coordinates[1])) {
-                    c = Color.GREEN;
-                } else {
-                    c = Color.RED;
-                }
-                drawAtom(coordinates[0], coordinates[1], c);
-                drawAtomCircleOfInfluence(coordinates[0], coordinates[1], c);
-            }
-        }
-
-        drawRayMarkers();
-        drawNumberLabels();
     }
-
 
     private void drawRaySegments(double centerX, double centerY, ArrayList<RaySegment> raySegments) {
         for(RaySegment raySegment: raySegments) {
@@ -246,6 +235,19 @@ public class BoardUI extends AnchorPane {
         drawBoard();
     }
 
+    private void drawAtomsAndCircles() {
+        for (double[] coordinates : atomCoordinates) {
+            Color c;
+            if(hasPlayerMarker(coordinates[0], coordinates[1])) {
+                c = Color.GREEN;
+            } else {
+                c = Color.RED;
+            }
+            drawAtom(coordinates[0], coordinates[1], c);
+            drawCircleOfInfluence(coordinates[0], coordinates[1], c);
+        }
+    }
+
 
     private void drawAtom(double centerX, double centerY, Color color) {
         Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
@@ -253,18 +255,7 @@ public class BoardUI extends AnchorPane {
         getChildren().add(atomCircle);
     }
 
-    private void drawPlayerMarker(double centerX, double centerY) {
-        Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
-        atomCircle.setFill(Color.GREY); // Atom color
-        if(interactive) {
-            atomCircle.setOnMouseClicked(event -> removePlayerMarker(centerX, centerY));
-        }
-        getChildren().add(atomCircle);
-    }
-
-
-    ////////
-    private void drawAtomCircleOfInfluence(double centerX, double centerY, Color color) {
+    private void drawCircleOfInfluence(double centerX, double centerY, Color color) {
         // Define the radius of the circle of influence
         double influenceRadius = HEX_SIZE * 1.7; // Adjust the multiplier as needed for the desired size
 
@@ -276,6 +267,15 @@ public class BoardUI extends AnchorPane {
 
         // Add the circle to the pane
         getChildren().add(atomInfluenceCircle);
+    }
+
+    private void drawPlayerMarker(double centerX, double centerY) {
+        Circle atomCircle = new Circle(centerX, centerY, HEX_SIZE / 4); // Radius is 1/4 of hexagon size
+        atomCircle.setFill(Color.GREY); // Atom color
+        if(interactive) {
+            atomCircle.setOnMouseClicked(event -> removePlayerMarker(centerX, centerY));
+        }
+        getChildren().add(atomCircle);
     }
 
     private void addNumberLabels(double centerX, double centerY, Cell cell) {
@@ -393,7 +393,7 @@ public class BoardUI extends AnchorPane {
 
 
 
-    //utility methods for computing layout coordinates of labels/ray markers and making the code more readable
+    // utility methods for computing layout coordinates of labels/ray markers and making the code more readable
     private double getLeftX(double centerX, Cell cell) {
         return cell.getRow() < 4 ? centerX - 1.25 * HEX_SIZE : centerX - 1.4 * HEX_SIZE;
     }
@@ -443,6 +443,13 @@ public class BoardUI extends AnchorPane {
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
+    }
+
+    public ArrayList<double[]> getAtomCoordinates() {
+        return atomCoordinates;
+    }
+    public ArrayList<double[]> getPlayerMarkerCoordinates() {
+        return playerMarkerCoordinates;
     }
 }
 

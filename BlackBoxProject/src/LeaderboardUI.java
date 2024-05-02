@@ -9,7 +9,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,8 +33,8 @@ public class LeaderboardUI {
     }
 
     private static void fillLeaderboard(VBox leaderboardBox) {
-        List<String> leaderboard = new ArrayList<>();
-        int status = Leaderboard.loadLeaderboard(leaderboard);
+        Leaderboard leaderboard = new Leaderboard();
+        int status = leaderboard.loadLeaderboard();
         if(status == 1) {
             leaderboardBox.getChildren().add(
                     CommonUI.createColoredLabel("Leaderboard formatting error: please either fix leaderboard.txt format or erase it and try again", Color.RED));
@@ -43,20 +42,20 @@ public class LeaderboardUI {
             leaderboardBox.getChildren().add(
                     CommonUI.createColoredLabel("File error; leaderboard unavailable", Color.RED));
         } else {
-            setLeaderboardEntries(leaderboardBox, leaderboard);
+            setLeaderboardEntries(leaderboardBox, leaderboard.getLeaderboardList());
         }
     }
 
-    private static void setLeaderboardEntries(VBox leaderboardBox, List<String> leaderboard) {
-        if(leaderboard.isEmpty()) {
+    private static void setLeaderboardEntries(VBox leaderboardBox, List<String> leaderboardList) {
+        if(leaderboardList.isEmpty()) {
             leaderboardBox.getChildren().add(
                     CommonUI.createLabel("Leaderboard is currently empty..."));
         } else {
-            for(int i=0; i< leaderboard.size(); i++) {
+            for(int i=0; i< leaderboardList.size(); i++) {
                 Color c = getPlacementColor(i);
 
                 leaderboardBox.getChildren().add(
-                        CommonUI.createColoredLabel(leaderboard.get(i), c));
+                        CommonUI.createColoredLabel(leaderboardList.get(i), c));
             }
         }
     }

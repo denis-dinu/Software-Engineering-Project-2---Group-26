@@ -1,107 +1,205 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RayTest {
+class NoAtomsTest {
+    Board board;
 
-    @Test
-    void noAtomsOutputPoint() {
-        Board board = new Board();
-        board.setSeed(1);
-        board.generateAtoms(6);
-
-        assertEquals(39, Ray.process(board, 8));
-        assertEquals(54, Ray.process(board, 11));
-        assertEquals(11, Ray.process(board, 54));
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[2][0].setAtom();
+        cells[4][4].setAtom();
     }
 
     @Test
-    void absorbedOutputPoint() {
-        Board board = new Board();
-        board.setSeed(1);
-        board.generateAtoms(6);
+    void testNoAtoms() {
+        assertEquals(50, Ray.process(board, 15));
+        assertEquals(33, Ray.process(board, 14));
+    }
+}
 
-        assertEquals(-1, Ray.process(board, 7));
-        assertEquals(-1, Ray.process(board, 46));
-        assertEquals(-1, Ray.process(board, 38));
+class AbsorbedTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[2][0].setAtom();
+        cells[4][4].setAtom();
     }
 
     @Test
-    void reflectionOutputPoint() {
-        Board board = new Board();
-        board.setSeed(10);
-        board.generateAtoms(6);
+    void testAbsorbed() {
+        assertEquals(-1, Ray.process(board, 11));
+        assertEquals(-1, Ray.process(board, 1));
+    }
+}
 
-        assertEquals(5, Ray.process(board, 5));
-        assertEquals(24, Ray.process(board, 24));
+class ReflectionTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[3][0].setAtom();
+        cells[5][0].setAtom();
+        cells[3][3].setAtom();
+        cells[4][4].setAtom();
+        cells[4][5].setAtom();
     }
 
     @Test
-    void deviation60OutputPoint() {
-        Board board = new Board();
-        board.setSeed(7);
-        board.generateAtoms(6);
+    void testReflected() {
+        assertEquals(10, Ray.process(board, 10));
+        assertEquals(46, Ray.process(board, 46));
+    }
+}
 
-        assertEquals(10, Ray.process(board, 34));
-        assertEquals(51, Ray.process(board, 12));
-        assertEquals(7, Ray.process(board, 17));
+class Deviation60Test {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[6][1].setAtom();
+        cells[1][1].setAtom();
+        cells[5][5].setAtom();
+        cells[7][3].setAtom();
     }
 
     @Test
-    void deviation120OutputPoint() {
-        Board board = new Board();
-        board.setSeed(5);
-        board.generateAtoms(6);
-
-        assertEquals(5, Ray.process(board, 44));
-        assertEquals(1, Ray.process(board, 10));
+    void testSingleDeflection() {
+        assertEquals(32, Ray.process(board, 40));
+        assertEquals(18, Ray.process(board, 24));
     }
 
     @Test
-    void edgeOfTheBoard() {
-        Board board = new Board();
-        board.setSeed(7);
-        board.generateAtoms(6);
+    void testMultipleDeflections() {
+        assertEquals(12, Ray.process(board, 41));
+    }
+}
 
-        assertEquals(48, Ray.process(board, 48));
-        assertEquals(42, Ray.process(board, 42));
-        assertEquals(41, Ray.process(board, 41));
-        assertEquals(39, Ray.process(board, 39));
+class Deviation120Test {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[3][1].setAtom();
+        cells[3][5].setAtom();
+        cells[3][6].setAtom();
+        cells[3][0].setAtom();
+        cells[6][3].setAtom();
+        cells[7][3].setAtom();
+    }
+
+    @Test
+    void testSingleDeflection() {
+        assertEquals(54, Ray.process(board, 5));
+    }
+
+    @Test
+    void testMultipleDeflections() {
+        assertEquals(32, Ray.process(board, 33));
+    }
+}
+
+class EdgeTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[0][4].setAtom();
+        cells[4][0].setAtom();
+        cells[5][0].setAtom();
+    }
+
+    @Test
+    void testEdge() {
+        assertEquals(12, Ray.process(board, 12));
+        assertEquals(44, Ray.process(board, 44));
+    }
+}
+
+class ComplexTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[0][0].setAtom();
+        cells[1][2].setAtom();
+        cells[4][0].setAtom();
+        cells[7][1].setAtom();
+        cells[6][2].setAtom();
+    }
+
+    @Test
+    void testComplex() {
+        assertEquals(14, Ray.process(board, 14));
+    }
+}
+
+class SymmetryTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void constructBoard() {
+        board = new Board();
+        Cell[][] cells = board.getCells();
+        cells[1][2].setAtom();
+        cells[4][0].setAtom();
+        cells[7][1].setAtom();
+        cells[6][2].setAtom();
+    }
+
+    @Test
+    void testSymmetric() {
+        assertEquals(14, Ray.process(board, 1));
+        assertEquals(1, Ray.process(board, 14));
+    }
+}
+
+class RaySegmentTest {
+    Board board;
+
+    // test fixture
+    @BeforeEach
+    void sendRays() {
+        board = new Board();
+        Ray.process(board, 52);
+        Ray.process(board, 6);
     }
 
     @Test
     void testRaySegments() {
-        Board board = new Board();
-        board.setSeed(1);
-        board.generateAtoms(6);
 
-        //send 3 rays into the board
-        Ray.process(board, 8);
-        Ray.process(board, 54);
-        Ray.process(board, 7);
+        Cell testCell = board.getCells()[2][1];
+        ArrayList<RaySegment> raySegments = testCell.getRaySegments();
 
-        Cell testCell = board.getCells()[3][0];
-        ArrayList<Integer> entryPoints = new ArrayList<>();
-        ArrayList<Integer> exitPoints = new ArrayList<>();
-        for(RaySegment rs : testCell.getRaySegments()) {
-            entryPoints.add(rs.entryPoint());
-            exitPoints.add(rs.exitPoint());
-        }
-
-        assertEquals(3, entryPoints.size());
-        assertTrue(entryPoints.contains(0));
-        assertTrue(entryPoints.contains(1));
-        assertTrue(entryPoints.contains(5));
-
-        assertEquals(3, exitPoints.size());
-        assertTrue(exitPoints.contains(2));
-        assertTrue(exitPoints.contains(3));
-        assertTrue(exitPoints.contains(4));
+        assertTrue(raySegments.contains(new RaySegment(1, 4)));
+        assertTrue(raySegments.contains(new RaySegment(5, 2)));
 
     }
-
-
 
 }
